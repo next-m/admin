@@ -36,6 +36,8 @@ import settlementNotice from "@/store/modules/calculate/settlementNotice.js";
 
 // homepage
 import user from "@/store/modules/homepage/user.js";
+import seed from "@/store/modules/homepage/seed.js";
+
 import creatorUser from "@/store/modules/homepage/creatorUser.js";
 
 import inquire from "@/store/modules/homepage/inquire.js";
@@ -87,6 +89,7 @@ export default new Vuex.Store({
     settlementNotice,
 
     user,
+    seed,
     creatorUser,
     languageSet,
     inquire,

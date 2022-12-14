@@ -33,7 +33,7 @@
                 <td>{{ item.homepageUserSid }}</td>
                 <td>{{ item.homepageUserName }}</td>
                 <td>{{ item.homepageUserEmail }}</td>
-                <td>{{ item.homePageUserStatusName }}</td>
+                <td>{{ item.seedPrice }}</td>
               </tr>
             </tbody>
             <tfoot v-if="list.length < 1">
@@ -98,15 +98,15 @@
                 </tr>
                 <tr>
                   <td>씨앗 수</td>
-                  <td><input type="password" v-model="password" /></td>
+                  <td><input type="text" v-model="password" /></td>
                   <td style="text-align:right;padding-right:10px;">처리일시</td>
-                  <td><input type="password" v-model="password_confirmation" /></td>
+                  <td><input type="text" v-model="password_confirmation" /></td>
                 </tr>
                 <tr>
                   <td>차감테이블 고유코드</td>
-                  <td><input type="password" v-model="password" /></td>
+                  <td><input type="text" v-model="password" /></td>
                   <td  style="text-align:right;padding-right:10px;">차감테이블명</td>
-                  <td><input type="password" v-model="password_confirmation" /></td>
+                  <td><input type="text" v-model="password_confirmation" /></td>
                 </tr>
 
               </table>
@@ -203,6 +203,7 @@ export default {
   },
   computed: {
     ...mapGetters("user", ["getUserList", "getUserDetail", "userAddResult", "userModifyResult", "userDeleteResult"]),
+    ...mapGetters("seed", ["getSeedList", "getSeedDetail", "seedAddResult", "seedModifyResult", "seedDeleteResult"]),
   },
   watch: {
     page() {
@@ -237,7 +238,7 @@ export default {
 
       try {
         bus.$emit("start:spinner");
-        const res = await this.__getResponse("user/GET_USER_LIST", {
+        const res = await this.__getResponse("seed/GET_SEED_LIST", {
           size: this.size,
           page: this.page,
           searchText: this.searchText,
@@ -248,7 +249,7 @@ export default {
           return;
         }
 
-        const data = res.homepageUserMaster;
+        const data = res.seed;
         this.list = data.data;
         this.len = data.last_page;
       } catch (error) {
