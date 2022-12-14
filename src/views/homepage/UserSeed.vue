@@ -29,7 +29,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in list" :key="index" @click="userDetail(item.homepageUserSid)">
+              <tr v-for="(item, index) in list" :key="index" @click="seedUserList(item.homepageUserSid)">
                 <td>{{ item.homepageUserSid }}</td>
                 <td>{{ item.homepageUserName }}</td>
                 <td>{{ item.homepageUserEmail }}</td>
@@ -53,8 +53,8 @@
             <h2>설정</h2>
             <div class="btn-group">
               <v-btn small color="primary" dark @click="validate('reg')">등록</v-btn>
-              <v-btn small color="warning" dark @click="validate('modify')">수정</v-btn>
-              <v-btn small color="error" dark @click="confirm(homepageUserSid)">삭제</v-btn>
+              <!--v-btn small color="warning" dark @click="validate('modify')">수정</v-btn>
+              <v-btn small color="error" dark @click="confirm(homepageUserSid)">삭제</v-btn-->
               <v-btn small @click="clear">clear</v-btn>
             </div>
           </div>
@@ -69,13 +69,15 @@
                 </colgroup>
                 <tr>
                   <td>회원 고유코드</td>
-                  <td colspan="3"><input type="text" readonly v-model="homepageUserSid" /></td>
+                  <td><input type="text" v-model="homepageUserSid"  /></td>
+                  <td style="text-align:right;padding-right:10px;">씨앗 고유코드</td>
+                  <td><input type="text" v-model="homepageUserSeedSid" readonly /></td>
                 </tr>
                 <tr>
                   <td>회원 이름</td>
-                  <td><input type="text" v-model="homepageUserName" /></td>
+                  <td><input type="text" v-model="homepageUserName" readonly /></td>
                   <td style="text-align:right;padding-right:10px;">이메일 주소</td>
-                  <td><input type="text" v-model="homepageUserEmail" /></td>
+                  <td><input type="text" v-model="homepageUserEmail" readonly /></td>
                 </tr>
               </table>
               <div class="tbl-div-line"></div>
@@ -87,26 +89,24 @@
                   <col width="*" />
                 </colgroup>                
                 <tr>
-                  <td>씨았처리구분</td>
+                  <td>씨앗처리구분</td>
                   <td>
-                    <pull-down :data="homePageUserStatus" :code="statusCode" @selected="homepageUserStatusProp" class="pull-down"></pull-down>
+                    <pull-down :data="homepageUserSeedKind" :code="homepageUserSeedKindCode" @selected="homepageUserSeedKindProp" class="pull-down"></pull-down>
                   </td>
                   <td style="text-align:right;padding-right:10px;">차감코멘트</td>
-                  <td>
-                    <pull-down :data="homePageUserStatus" :code="statusCode" @selected="homepageUserStatusProp" class="pull-down"></pull-down>
-                  </td>
+                  <td><input type="text" v-model="homepageUserSeedComment" readonly /></td>                    
                 </tr>
                 <tr>
                   <td>씨앗 수</td>
-                  <td><input type="text" v-model="password" /></td>
+                  <td><input type="text" v-model="homepageUserSeedPrice" /></td>
                   <td style="text-align:right;padding-right:10px;">처리일시</td>
-                  <td><input type="text" v-model="password_confirmation" /></td>
+                  <td><input type="text" v-model="homepageUserSeedDateTime" readonly /></td>
                 </tr>
                 <tr>
-                  <td>차감테이블 고유코드</td>
-                  <td><input type="text" v-model="password" /></td>
-                  <td  style="text-align:right;padding-right:10px;">차감테이블명</td>
-                  <td><input type="text" v-model="password_confirmation" /></td>
+                  <td>테이블 고유코드</td>
+                  <td><input type="text" v-model="homepageUserSeedTable"  readonly  /></td>
+                  <td  style="text-align:right;padding-right:10px;">테이블명</td>
+                  <td><input type="text" v-model="homepageUserSeedTableSid"  readonly  /></td>
                 </tr>
 
               </table>
@@ -132,12 +132,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, idx) in userHistory" :key="idx">
-                    <td>{{ item.homepageUserConfigSid }}</td>
-                    <td>{{ item.homepageUserConfigKind }}</td>
-                    <td>{{ item.homepageUserConfigKindName }}</td>
-                    <td>{{ item.homepageUserConfigDate }}</td>
-                    <td>{{ item.homepageUserConfigStatus1 }}</td>
+                  <tr v-for="(item, idx) in seedHistory" :key="idx" @click="seedDetail(item.homepageUserSeedSid)">
+                    <td>{{ item.homepageUserSeedSid }}</td>
+                    <td>{{ item.homepageUserSeedDateTime }}</td>
+                    <td>{{ item.homepageUserSeedKindName }}</td>
+                    <td>{{ item.homepageUserSeedComment }}</td>
+                    <td>{{ item.homepageUserSeedPrice }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -145,8 +145,6 @@
           </div>
           <!-- 알럿 -->
           <alim :open="snackbar" :txt="text" :color="color" @reset="emitReset"></alim>
-          <!-- 삭제 컨펌 -->
-          <confirm :type="type" :open="dialog" :txt="dialogText" :h1="dialogTitle" @resetConfirm="emitResetConfirm"></confirm>
         </div>
       </section>
     </section>
@@ -175,35 +173,25 @@ export default {
       searchText: "",
       len: null,
       list: [],
-      //유저 디테일 데이터
-      homepageUserSid: "",
-      homepageUserKind: "",
-      homepageUserEmail: "",
-      homepageUserName: "",
-      homePageUserCreateDateTime: "",
-      homepageUserWithdrawDateTime: "",
-      homePageUserStatus: "",
-      homepageUserTestFlag: "N",
-      homepageUserConfigPromotionName: "SYS22A12B025",
-      homepageUserConfigSmsName: "SYS22A12B019",
-      homepageUserConfigEmailName: "SYS22A12B021",
-      homepageUserConfigPushName: "SYS22A12B023",
-      updated_at: "",
-      created_at: "",
-      homepageUserKindName: "",
-      homepageUserStatus: "",
-      password_confirmation: "",
-      homePageUserStatusName: "",
-      password: "",
+      //씨앗 디테일 데이터
+      homepageUserSeedSid:"",
+      homepageUserSid:"",
+      homepageUserName:"",
+      homepageUserEmail:"",
+      homepageUserSeedKind:"",
+      homepageUserSeedPrice:"",
+      homepageUserSeedComment:"",
+      homepageUserSeedDateTime:"",
+      homepageUserSeedTable:"",
+      homepageUserSeedTableSid:"",
+      homepageUserSeedKindName:"",
       //셀렉트 설정
-      kindCode: "SYS22A12B004",
-      statusCode: "SYS22A12B005",
-      userHistory: [],
+      homepageUserSeedKindCode: "SYS22A21B007",
+      seedHistory: [],
     };
   },
   computed: {
-    ...mapGetters("user", ["getUserList", "getUserDetail", "userAddResult", "userModifyResult", "userDeleteResult"]),
-    ...mapGetters("seed", ["getSeedList", "getSeedDetail", "seedAddResult", "seedModifyResult", "seedDeleteResult"]),
+    ...mapGetters("seed", ["getSeedList", "getSeedUserList","getSeedDetail", "seedAddResult"]),
   },
   watch: {
     page() {
@@ -218,13 +206,9 @@ export default {
   },
   methods: {
     //풀다운 데이터 emit
-    homepageUserKindNameProp(data) {
-      this.homepageUserKind = data.sysCodeSid;
-      this.homepageUserKindName = data.sysCodeName;
-    },
-    homepageUserStatusProp(data) {
-      this.homePageUserStatus = data.sysCodeSid;
-      this.homePageUserStatusName = data.sysCodeName;
+    homepageUserSeedKindProp(data) {
+      this.homepageUserSeedKind = data.sysCodeSid;
+      this.homepageUserSeedKindName = data.sysCodeName;
     },
     //데이터 불러오기 num:0 => 설정 초기화, num: 1 => 페이징 초기화
     async reload(num) {
@@ -258,76 +242,70 @@ export default {
         bus.$emit("end:spinner");
       }
     },
-    //유저 상세 정보
-    async userDetail(id) {
+    async seedUserList(id) {    
       try {
         bus.$emit("start:spinner");
-        const res = await this.__getResponse("user/GET_USER_DETAIL", id);
+        this.homepageUserSid=id;
+        await this.$store.dispatch("seed/GET_SEEDUSER_LIST",id);
+        const res = this.getSeedUserList.nextmApiResult;
 
         if (res.errorCode !== 200) {
           this.alim(res.errorMessage, this.errorColor);
           return;
         }
-
-        const userDetail = res.homepageUserMaster;
-        this.homepageUserSid = userDetail.homepageUserSid;
-        this.homepageUserKind = userDetail.homepageUserKind;
-        this.homepageUserEmail = userDetail.homepageUserEmail;
-        this.homepageUserName = userDetail.homepageUserName;
-        this.homePageUserCreateDateTime = userDetail.homePageUserCreateDateTime;
-        this.homepageUserWithdrawDateTime = userDetail.homepageUserWithdrawDateTime;
-        this.homePageUserStatus = userDetail.homePageUserStatus;
-        this.updated_at = userDetail.updated_at;
-        this.created_at = userDetail.created_at;
-        this.homepageUserConfigPromotionName = userDetail.homepageUserConfigPromotion;
-        this.homepageUserConfigSmsName = userDetail.homepageUserConfigSms;
-        this.homepageUserConfigEmailName = userDetail.homepageUserConfigEmail;
-        this.homepageUserConfigPushName = userDetail.homepageUserConfigPush;
-        this.homepageUserKindName = userDetail.homepageUserKindName;
-        this.homePageUserStatusName = userDetail.homePageUserStatusName;
-        this.homepageUserTestFlag = userDetail.homepageUserTestFlag;
-        this.userHistory = userDetail.userConfig;
+        console.log(res.seed);
+        this.seedHistory = res.seed;
       } catch (error) {
         this.alim(error, this.errorColor);
       } finally {
         bus.$emit("end:spinner");
       }
     },
-    //유저 추가
+    //유저 상세 정보
+    async seedDetail(id) {
+      try {
+        bus.$emit("start:spinner");
+        const res = await this.__getResponse("seed/GET_SEED_DETAIL", id);
+
+        if (res.errorCode !== 200) {
+          this.alim(res.errorMessage, this.errorColor);
+          return;
+        }
+        console.log(res);
+        const seedDetail = res.seed;
+        this.homepageUserSeedSid=seedDetail.homepageUserSeedSid;
+        this.homepageUserSid=seedDetail.homepageUserSid;
+        this.homepageUserName=seedDetail.homepageUserName;
+        this.homepageUserEmail=seedDetail.homepageUserEmail;
+        this.homepageUserSeedKind=seedDetail.homepageUserSeedKind;
+        this.homepageUserSeedPrice=seedDetail.homepageUserSeedPrice;
+        this.homepageUserSeedComment=seedDetail.homepageUserSeedComment;
+        this.homepageUserSeedDateTime=seedDetail.homepageUserSeedDateTime;
+        this.homepageUserSeedTable=seedDetail.homepageUserSeedTable;
+        this.homepageUserSeedTableSid=seedDetail.homepageUserSeedTableSid;
+
+      } catch (error) {
+        this.alim(error, this.errorColor);
+      } finally {
+        bus.$emit("end:spinner");
+      }
+    },
+    //씨앗  추가
     async reg() {
       try {
         bus.$emit("start:spinner");
-        const res = await this.__getResponse("user/USER_ADD", {
-          homepageUserKind: this.homepageUserKind,
-          homepageUserEmail: this.homepageUserEmail,
-          homepageUserName: this.homepageUserName,
-          homepageUserConfigPromotion: this.homepageUserConfigPromotionName,
-          homepageUserConfigSms: this.homepageUserConfigSmsName,
-          homepageUserConfigEmail: this.homepageUserConfigEmailName,
-          homepageUserConfigPush: this.homepageUserConfigPushName,
-          homePageUserStatus: this.homePageUserStatus,
-          password_confirmation: this.password_confirmation,
-          homepageUserTestFlag: this.homepageUserTestFlag,
-          password: this.password,
+        const res = await this.__getResponse("seed/SEED_ADD", {
+          homepageUserSid:this.homepageUserSid,
+          homepageUserSeedKind:this.homepageUserSeedKind,
+          homepageUserSeedPrice:this.homepageUserSeedPrice,
         });
-        // await this.$store.dispatch('user/USER_ADD', {
-        // 	homepageUserKind: this.homepageUserKind,
-        // 	homepageUserEmail: this.homepageUserEmail,
-        // 	homepageUserName: this.homepageUserName,
-        // 	homePageUserCreateDateTime: this.homePageUserCreateDateTime,
-        // 	homepageUserWithdrawDateTime: this.homepageUserWithdrawDateTime,
-        // 	homepageUserStatus: this.homepageUserStatus,
-        // 	password_confirmation: this.password_confirmation,
-        // 	password: this.password,
-        // });
-
         if (res.errorCode !== 200) {
           this.alim(res.errorMessage, this.errorColor);
           bus.$emit("end:spinner");
           return;
         }
 
-        this.alim("회원이 추가 되었습니다.", this.successColor);
+        this.alim("씨앗이 추가 되었습니다.", this.successColor);
         await this.reload(0);
       } catch (error) {
         this.alim(error, this.errorColor);
@@ -338,143 +316,44 @@ export default {
     //등록 validate
     validate(status) {
       if (status === "reg") {
-        if (this.homepageUserSid !== "") {
-          this.alim("회원 고유코드가 있으면 등록할 수 없습니다.", this.errorColor);
+        if (this.homepageUserSeedSid !== "") {
+          this.alim("씨앗 고유코드가 있으면 등록할 수 없습니다.", this.errorColor);
           return false;
         }
-        if (this.password === "") {
-          this.alim("비밀번호를 입력해 주세요.", this.errorColor);
+        if (this.homepageUserSid === "") {
+          this.alim("회원 고유코드를 입력해 주세요.", this.errorColor);
           return false;
         }
-        if (this.password !== "") {
-          let result = CheckPassword(this.password);
-          if (result) {
-            this.alim("비밀번호는 영문 또는 숫자, 특수문자 포함 8자리 이상이어야 합니다.", this.errorColor);
-            return false;
-          }
-        }
-        if (this.password_confirmation === "") {
-          this.alim("비밀번호 확인을 입력해 주세요.", this.errorColor);
+        if (this.homepageUserSeedPrice === "") {
+          this.alim("씨앗수 를 입력해 주세요.", this.errorColor);
+          return false;
+        }        
+        if (this.homepageUserSeedKind === "" ||(this.homepageUserSeedKind !== "SYS22A21B010" && this.homepageUserSeedKind !== "SYS22A21B012")) {
+          this.alim("씨앗처리구분이 선택되지 않았거나 관리자 지급 또는 관리자 차감만 선택할 수 있습니다.", this.errorColor);
           return false;
         }
-        if (this.password !== this.password_confirmation) {
-          this.alim("비밀번호가 일치하지 않습니다.", this.errorColor);
-          return false;
-        }
+
       }
-      if (this.homepageUserName === "") {
-        this.alim("회원 이름을 입력해 주세요.", this.errorColor);
-        return false;
-      }
-      if (this.homepageUserEmail === "") {
-        this.alim("이메일을 입력해 주세요.", this.errorColor);
-        return false;
-      }
-      if (this.homepageUserEmail !== "") {
-        let result = verifyEmail(this.homepageUserEmail);
-        if (result === false) {
-          this.alim("이메일 형식이 틀렸습니다.", this.errorColor);
-          return false;
-        }
-      }
-      if (this.homepageUserKindName === "") {
-        this.alim("회원가입 종류를 입력해 주세요.", this.errorColor);
-        return false;
-      }
-      if (this.homePageUserStatusName === "") {
-        this.alim("회원가입 상태를 입력해 주세요.", this.errorColor);
-        return false;
-      }
+
       if (status === "reg") {
         this.reg();
       }
-      if (status === "modify") {
-        this.modify();
-      }
     },
-    //유저 수정
-    async modify() {
-      try {
-        bus.$emit("start:spinner");
-        const res = await this.__getResponse("user/USER_MODIFY", {
-          homepageUserSid: this.homepageUserSid,
-          homepageUserEmail: this.homepageUserEmail,
-          homepageUserName: this.homepageUserName,
-          homepageUserConfigPromotion: this.homepageUserConfigPromotionName,
-          homepageUserConfigSms: this.homepageUserConfigSmsName,
-          homepageUserConfigEmail: this.homepageUserConfigEmailName,
-          homepageUserConfigPush: this.homepageUserConfigPushName,
-          homePageUserStatus: this.homePageUserStatus,
-          homepageUserTestFlag: this.homepageUserTestFlag,
-          password: this.password,
-        });
-        if (res.errorCode !== 200) {
-          this.alim(res.errorMessage, this.errorColor);
-          return;
-        }
-
-        await this.userDetail(this.homepageUserSid);
-        this.alim(res.errorMessage, this.successColor);
-        await this.reload(0);
-      } catch (error) {
-        this.alim(error, this.errorColor);
-      } finally {
-        bus.$emit("end:spinner");
-      }
-    },
-    //유저 삭제
-    async emitResetConfirm(data) {
-      if (data.del === "Y") {
-        if (data.type === "list") {
-          try {
-            bus.$emit("start:spinner");
-            const res = await this.__getResponse("user/USER_DELETE_RESULT", this.homepageUserSid);
-            if (res.errorCode !== 200) {
-              return this.alim(res.errorMessage, this.errorColor);
-            }
-            await this.reload(0);
-            this.alim(res.errorMessage, this.successColor);
-          } catch (error) {
-            this.alim(error, this.errorColor);
-          } finally {
-            bus.$emit("end:spinner");
-          }
-
-          // await this.$store.dispatch('user/USER_DEL', this.homepageUserSid);
-          // const res = this.userDeleteResult.nextmApiResult;
-          // if (res.errorCode !== 200) {
-          // 	this.alim(res.errorMessage, this.errorColor);
-          // 	bus.$emit('end:spinner');
-          // 	return false;
-          // }
-
-          // await this.reload(0);
-          // if (this.list.length < 1) {
-          // 	this.page = this.page - 1;
-          // }
-          // this.alim('삭제 되었습니다.', this.successColor);
-        }
-      }
-      this.resetDeleteData();
-    },
+  
     //항목 clear
     clear() {
-      const select = document.querySelectorAll(".select-tbl tr");
-      select.forEach(ele => ele.classList.remove("active"));
+      // const select = document.querySelectorAll(".select-tbl tr");
+      // select.forEach(ele => ele.classList.remove("active"));
+      this.homepageUserSeedSid = "";
       this.homepageUserSid = "";
-      this.homepageUserKind = "";
-      this.homepageUserEmail = "";
       this.homepageUserName = "";
-      this.homePageUserCreateDateTime = "";
-      this.homepageUserWithdrawDateTime = "";
-      this.homePageUserStatus = "";
-      this.updated_at = "";
-      this.created_at = "";
-      this.homepageUserKindName = "";
-      this.homepageUserStatus = "";
-      this.password_confirmation = "";
-      this.password = "";
-      this.homepageUserTestFlag = "N";
+      this.homepageUserEmail = "";
+      this.homepageUserSeedKind = "";
+      this.homepageUserSeedPrice = "";
+      this.homepageUserSeedComment = "";
+      this.homepageUserSeedDateTime = "";
+      this.homepageUserSeedTable = "";
+      this.homepageUserSeedTableSid = "";
     },
   },
 };

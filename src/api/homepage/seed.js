@@ -7,41 +7,19 @@ function getSeedList(data) {
   };
   return createInstanceWithAuth("/userSeed", {}, param, "application/json; charset=utf-8").get();
 }
-function getSeedDetail(id) {
-  return createInstanceWithAuth(`/userSeed/${id}`, {}, {}, "application/json; charset=utf-8").get();
+function getSeedUserList(id) {
+    return createInstanceWithAuth(`/seed/list/${id}`, {}, {}, "application/json; charset=utf-8").get();
 }
-function seedDelete(id) {
-  return createInstanceWithAuth(`/userSeed/${id}`, {}, {}, "application/json; charset=utf-8").delete();
+function getSeedDetail(id) {
+  return createInstanceWithAuth(`/seed/${id}`, {}, {}, "application/json; charset=utf-8").get();
 }
 function seedAdd(data) {
   let paramData = {
-    homepageUserKind: data.homepageUserKind,
-    homepageUserEmail: data.homepageUserEmail,
-    homepageUserName: data.homepageUserName,
-    homepageUserConfigPromotion: data.homepageUserConfigPromotion,
-    homepageUserConfigSms: data.homepageUserConfigSms,
-    homepageUserConfigEmail: data.homepageUserConfigEmail,
-    homepageUserConfigPush: data.homepageUserConfigPush,
-    homePageUserStatus: data.homePageUserStatus,
-    password_confirmation: data.password_confirmation,
-    homepageUserTestFlag: data.homepageUserTestFlag,
-    password: data.password,
-  };
-  return createInstanceWithAuth("/userSeed", paramData, {}, "application/json; charset=utf-8").post();
-}
-function seedModify(data) {
-  let paramData = {
     homepageUserSid: data.homepageUserSid,
-    homepageUserEmail: data.homepageUserEmail,
-    homepageUserName: data.homepageUserName,
-    homepageUserConfigPromotion: data.homepageUserConfigPromotion,
-    homepageUserConfigSms: data.homepageUserConfigSms,
-    homepageUserConfigEmail: data.homepageUserConfigEmail,
-    homepageUserConfigPush: data.homepageUserConfigPush,
-    homePageUserStatus: data.homePageUserStatus,
-    homepageUserTestFlag: data.homepageUserTestFlag,
-    password: data.password,
+    homepageUserSeedKind: data.homepageUserSeedKind,
+    homepageUserSeedPrice: data.homepageUserSeedPrice,
   };
-  return createInstanceWithAuth(`/userSeed/${data.homepageUserSid}`, paramData, {}, "application/json; charset=utf-8").put();
+  return createInstanceWithAuth("/seed", paramData, {}, "application/json; charset=utf-8").post();
 }
-export { getSeedList, getSeedDetail, seedAdd, seedDelete, seedModify };
+
+export { getSeedList,getSeedUserList, getSeedDetail, seedAdd};
