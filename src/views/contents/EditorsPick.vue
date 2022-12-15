@@ -355,8 +355,6 @@
       }
     }
   }
-  </style>
-  <style scoped>
   .searchSelect{
     width: 200px !important;
     vertical-align: middle;

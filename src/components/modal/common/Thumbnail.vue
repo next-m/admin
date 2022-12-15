@@ -88,7 +88,7 @@ export default {
     },
     close() {
       // 썸네일 모달 닫을시 삭제한 목록 보내도록 수정
-      this.$attrs.updateData(this.deleteList);
+      //this.$attrs.updateData(this.deleteList);
       this.$emit("close");
     },
     //사진파일 삭제

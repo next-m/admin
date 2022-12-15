@@ -436,13 +436,13 @@ const router = new VueRouter({
       },
     },        
     {
-      path: "/homepage/creatorVideo",
-      name: "creatorvideo",
-      meta: { lnb: "회원관리" },
+      path: "/contents/creatorVideoList",
+      name: "creatorvideolist",
+      meta: { lnb: "콘탠츠 관리" },
       components: {
         ui,
         top,
-        contents: () => import("@/views/homepage/CreatorVideo.vue"),
+        contents: () => import("@/views/contents/CreatorVideoList.vue"),
       },
     },        
     

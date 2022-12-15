@@ -36,6 +36,50 @@
             </tbody>
           </table>
         </div>
+
+        <section class="bottom-section">
+            <table class="tbl mt20 user-list-tbl select-tbl">
+              <caption>
+                배너테이블
+              </caption>
+              <colgroup>
+                <col width="90" />
+                <col width="*" />
+                <col width="160" />
+                <col width="120" />
+                <col width="120" />
+                <col width="90" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>배너고유코드</th>
+                  <th>배너제목</th>
+                  <th>배너서브제목</th>
+                  <th>시작일시</th>
+                  <th>종료일시</th>
+                  <th>배너오픈여부</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in list" :key="index" @click="getBannerDetailById(item.bannerSid)">
+                  <td>{{ item.bannerSid }}</td>
+                  <td>{{ item.bannerTitle }}</td>
+                  <td>{{ item.bannerSubTitle }}</td>
+                  <td>{{ __getLocalTime(item.bannerStartDateTime) }}</td>
+                  <td>{{ __getLocalTime(item.bannerEndDateTime) }}</td>
+                  <td>{{ item.bannerOpenFlag }}</td>
+                </tr>
+              </tbody>
+              <tfoot v-if="list.length < 1">
+                <tr>
+                  <td colspan="6">배너 리스트가 없습니다.</td>
+                </tr>
+              </tfoot>
+            </table>
+            <div class="text-center mt10" v-if="list.length > 0">
+              <v-pagination v-model="page" :length="len" :total-visible="7"></v-pagination>
+            </div>
+          </section>        
       </section>
 
       <section class="init-wrap section-box border-outside">
@@ -50,7 +94,6 @@
             </div>
           </div>
           <section class="top-section">
-            <section class="left-section">
               <table width="100%" class="tbl-reg column2">
                 <colgroup>
                   <col width="80" />
@@ -128,12 +171,6 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>배너이미지</td>
-                  <td colspan="3">
-                    <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
-                  </td>
-                </tr>
-                <tr>
                   <td>배너 클로즈 종류</td>
                   <td colspan="2" class="radio">
                     <v-radio-group v-model="bannerCloseKind">
@@ -151,6 +188,36 @@
                     <v-btn small color="#D0A9F5" dark @click="showLanguageSetModalPopup(-1, 'bannerCloseKind')" class="child-add">언어셋</v-btn>
                   </td> -->
                 </tr>
+                <tr>
+                  <td>배너이미지</td>
+                  <td colspan="3">
+                    <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
+                    <div class="ql-snow" v-if="bannerKind === 'SYS21C23B025'">
+                      <div class="mb20">
+                        <h3>팝업 HTML</h3>
+                      </div>
+                      <div class="layout">
+                        <quill-editor ref="myTextEditor" v-model="bannerContent" :options="options"> </quill-editor>
+                      </div>
+                    </div>
+                    <div v-else>
+                      <ul class="file-list">
+                        <li v-for="(item, index) in fileResult" :key="index">
+                          <div class="elem">
+                            <!-- v-if="actualSurveyPartnerStatus !== 'SYS21819B005'" -->
+                            <v-icon @click="confirmPhoto(item.fileSid)">mdi-close-circle</v-icon>
+                            <!-- v-if="message === false" -->
+                            <div @click="thumbnailModal({ id: item.fileSid, fileExt: item.fileExt, name: item.fileFileName })">
+                              <img :src="'https://api.next-m.kr/api/h1/file/fileView/' + item.fileSid+'?size=300'" style="height:100% !important;width:400px !important;"/>
+                            </div>
+                          </div>
+                        </li>
+                        <div v-if="message === true">첨부된 파일이 없습니다.</div>
+                      </ul>
+                    </div>
+
+                  </td>
+                </tr>
                 <!-- <tr class="ql-snow" v-show="bannerKind === 'SYS21C23B025'">
 									<td>팝업 HTML</td>
 									<td colspan="3">
@@ -158,79 +225,8 @@
 									</td>
 								</tr> -->
               </table>
-            </section>
-            <section class="right-section">
-              <div class="ql-snow" v-if="bannerKind === 'SYS21C23B025'">
-                <div class="mb20">
-                  <h3>팝업 HTML</h3>
-                </div>
-                <div class="layout">
-                  <quill-editor ref="myTextEditor" v-model="bannerContent" :options="options"> </quill-editor>
-                </div>
-              </div>
-              <div v-else>
-                <div>
-                  <h3>배너이미지</h3>
-                </div>
-                <ul class="file-list">
-                  <li v-for="(item, index) in fileResult" :key="index">
-                    <div class="elem">
-                      <!-- v-if="actualSurveyPartnerStatus !== 'SYS21819B005'" -->
-                      <v-icon @click="confirmPhoto(item.fileSid)">mdi-close-circle</v-icon>
-                      <!-- v-if="message === false" -->
-                      <div @click="thumbnailModal({ id: item.fileSid, fileExt: item.fileExt, name: item.fileFileName })">
-                        <img :src="item.fileServer + '/' + item.fileStoragePath + '/' + item.fileStorageFileName" />
-                      </div>
-                    </div>
-                  </li>
-                  <div v-if="message === true">첨부된 파일이 없습니다.</div>
-                </ul>
-              </div>
-            </section>
           </section>
-          <section class="bottom-section">
-            <table class="tbl mt20 user-list-tbl select-tbl">
-              <caption>
-                배너테이블
-              </caption>
-              <colgroup>
-                <col width="90" />
-                <col width="*" />
-                <col width="160" />
-                <col width="120" />
-                <col width="120" />
-                <col width="90" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>배너고유코드</th>
-                  <th>배너제목</th>
-                  <th>배너서브제목</th>
-                  <th>시작일시</th>
-                  <th>종료일시</th>
-                  <th>배너오픈여부</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in list" :key="index" @click="getBannerDetailById(item.bannerSid)">
-                  <td>{{ item.bannerSid }}</td>
-                  <td>{{ item.bannerTitle }}</td>
-                  <td>{{ item.bannerSubTitle }}</td>
-                  <td>{{ __getLocalTime(item.bannerStartDateTime) }}</td>
-                  <td>{{ __getLocalTime(item.bannerEndDateTime) }}</td>
-                  <td>{{ item.bannerOpenFlag }}</td>
-                </tr>
-              </tbody>
-              <tfoot v-if="list.length < 1">
-                <tr>
-                  <td colspan="6">배너 리스트가 없습니다.</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div class="text-center mt10" v-if="list.length > 0">
-              <v-pagination v-model="page" :length="len" :total-visible="7"></v-pagination>
-            </div>
-          </section>
+
         </div>
       </section>
       <!-- 알럿 -->
@@ -280,7 +276,7 @@ export default {
 
       // detail
       bannerDevice: "",
-      bannerKind: "",
+      bannerKind: "SYS22B02B002",
       bannerLink: "",
       bannerOpenFlag: "",
       bannerSid: "",
@@ -339,6 +335,7 @@ export default {
   },
   mounted() {
     this.getBannerKindList();
+    this.getBannerListBySysCode('SYS22B02B002');
   },
   methods: {
     newBannerStartDateTime(data) {
@@ -680,15 +677,17 @@ export default {
   justify-content: space-between;
   height: 80vh;
   & .banner-list {
-    width: 350px !important;
+    width: 60% !important;
     border: 1px solid #ccc;
+    margin-right: 10px !important;
     & .border {
       padding: 20px;
       border: 0 !important;
+      display:none;
     }
   }
   & .section-box {
-    width: calc(100% - 370px);
+    width: 50%;
     & .border {
       & .field {
         & .required {
@@ -703,7 +702,7 @@ export default {
       display: flex;
       justify-content: space-between;
       & .left-section {
-        width: 50%;
+        width: 40%;
         padding: 10px;
       }
 
