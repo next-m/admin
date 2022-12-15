@@ -424,7 +424,18 @@ const router = new VueRouter({
         top,
         contents: () => import("@/views/homepage/UserSeed.vue"),
       },
+    },    
+    {
+      path: "/homepage/creatorVideo",
+      name: "creatorvideo",
+      meta: { lnb: "회원관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/homepage/CreatorVideo.vue"),
+      },
     },        
+    
     {
       path: "/homepage/board/notice/list",
       name: "notice_list",
