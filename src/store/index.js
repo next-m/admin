@@ -15,6 +15,7 @@ import languageSet from "@/store/modules/system/languageSet.js";
 import login from "@/store/modules/member/login.js";
 // contents EditorsPick
 import editorsPick from "@/store/modules/contents/editorsPick.js";
+import creatorVideo from "@/store/modules/contents/creatorVideo.js";
 
 
 // operation
@@ -74,6 +75,7 @@ export default new Vuex.Store({
 
     login,
     editorsPick,
+    creatorVideo,
     company,
     companyPerson,
     prospectiveCustomer,
