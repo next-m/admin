@@ -13,6 +13,9 @@ import languageSet from "@/store/modules/system/languageSet.js";
 
 // member
 import login from "@/store/modules/member/login.js";
+// contents EditorsPick
+import editorsPick from "@/store/modules/contents/editorsPick.js";
+
 
 // operation
 import company from "@/store/modules/operation/company.js";
@@ -70,7 +73,7 @@ export default new Vuex.Store({
     systemCode,
 
     login,
-
+    editorsPick,
     company,
     companyPerson,
     prospectiveCustomer,

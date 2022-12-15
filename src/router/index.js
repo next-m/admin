@@ -426,6 +426,16 @@ const router = new VueRouter({
       },
     },    
     {
+      path: "/contents/editorsPick",
+      name: "editorspick",
+      meta: { lnb: "콘텐츠 관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/contents/EditorsPick.vue"),
+      },
+    },        
+    {
       path: "/homepage/creatorVideo",
       name: "creatorvideo",
       meta: { lnb: "회원관리" },
