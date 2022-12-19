@@ -22,7 +22,7 @@ const member = {
       return state.userAdd;
     },
     userDel: state => {
-      return state.userDelete;
+      return state.userDel;
     },
   },
   mutations: {

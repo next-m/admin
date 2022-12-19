@@ -80,7 +80,7 @@
                 </tr>
                 <tr>
                   <td>회원구분</td>
-                  <pull-down :data="adminUserKind" :code="kindCode" @selected="adminUserKindNameProp" class="pull-down"></pull-down>
+                  <pull-down :data="adminUserKind" :code="adminUserKindCode" @selected="adminUserKindNameProp" class="pull-down"></pull-down>
                 </tr>
                 <tr>
                   <td>이메일 주소/ID</td>
@@ -102,29 +102,6 @@
                   <td>레벨</td>
                   <td><input type="text" v-model="adminUserLevel" maxlength="2" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" /></td>
                 </tr>
-                <tr>
-                  <td>섬기는 교회</td>
-                  <td><input type="text" v-model="adminUserChurch" /></td>
-                </tr>
-                <tr>
-                  <td>교회 교단</td>
-                  <td><input type="text" v-model="adminUserChurchPlatform" /></td>
-                </tr>
-                <tr>
-                  <td>교회 직책</td>
-                  <td><input type="text" v-model="adminUserChurchPosition" /></td>
-                </tr>
-                <tr>
-                  <td>유튜브 채널명</td>
-                  <td><input type="text" v-model="adminUserYoutubeChannel" /></td>
-                </tr>
-                <tr>
-                  <td>유튜브 URL</td>
-                  <td><input type="text" v-model="adminUserYoutubeUrl" /></td>
-                </tr>
-
-
-
                 <tr>
                   <td>사용여부</td>
                   <td>
@@ -214,28 +191,21 @@ export default {
       adminUserName: "",
       adminUserEmail: "",
       adminUserLevel: "",
+      adminUserKind:"",
       password: "",
       password_confirmation: "",
       adminUserUseFlag: "Y",
       created_name: "",
       created_at: "",
       updated_at: "",
-      adminUserKind:'',
-      adminUserPhoto:'',
-      adminUserChurch:'',
-      adminUserChurchPlatform:'',
-      adminUserChurchPosition:'',
-      adminUserYoutubeChannel:'',
-      adminUserYoutubeUrl:'',
-
       nextmFiles: [],
 
-      kindCode: "SYS22A19B002",      
+      adminUserKindCode: "SYS22A19B002",      
       url: process.env.VUE_APP_API,
     };
   },
   computed: {
-    ...mapGetters("member", ["getUserList", "getUserDetail", "userAdd", "userDeleteResult"]),
+    ...mapGetters("member", ["getUserList", "getUserDetail", "userAdd", "userDel"]),
     ...mapGetters("common", ["fileDeleteResult"]),
   },
   watch: {
@@ -301,12 +271,6 @@ export default {
           this.created_at = userDetail.created_at;
           this.updated_at = userDetail.updated_at;
           this.adminUserKind = userDetail.adminUserKind;
-          this.adminUserPhoto = userDetail.adminUserPhoto;
-          this.adminUserChurch = userDetail.adminUserChurch;
-          this.adminUserChurchPlatform = userDetail.adminUserChurchPlatform;
-          this.adminUserChurchPosition = userDetail.adminUserChurchPosition;
-          this.adminUserYoutubeChannel = userDetail.adminUserYoutubeChannel;
-          this.adminUserYoutubeUrl = userDetail.adminUserYoutubeUrl;
           this.password = "";
           this.password_confirmation = "";
 
@@ -349,13 +313,6 @@ export default {
           adminUserLevel: this.adminUserLevel,
           adminUserUseFlag: this.adminUserUseFlag,
           adminUserKind : this.adminUserKind,
-          adminUserPhoto : this.adminUserPhoto,
-          adminUserChurch : this.adminUserChurch,
-          adminUserChurchPlatform : this.adminUserChurchPlatform,
-          adminUserChurchPosition : this.adminUserChurchPosition,
-          adminUserYoutubeChannel : this.adminUserYoutubeChannel,
-          adminUserYoutubeUrl : this.adminUserYoutubeUrl,
-
           nextmFiles: this.nextmFiles,
                                                                       
         });
@@ -438,12 +395,6 @@ export default {
           adminUserLevel: this.adminUserLevel,
           adminUserUseFlag: this.adminUserUseFlag,
           adminUserKind : this.adminUserKind,
-          adminUserPhoto : this.adminUserPhoto,
-          adminUserChurch : this.adminUserChurch,
-          adminUserChurchPlatform : this.adminUserChurchPlatform,
-          adminUserChurchPosition : this.adminUserChurchPosition,
-          adminUserYoutubeChannel : this.adminUserYoutubeChannel,
-          adminUserYoutubeUrl : this.adminUserYoutubeUrl,
           nextmFiles: this.nextmFiles,
         });
         this.__responseCheck(res, this.alim, this.reload);
@@ -460,14 +411,14 @@ export default {
           try {
             bus.$emit("start:spinner");
             await this.$store.dispatch("member/USER_DEL", this.adminUserSid);
-            if (this.userDeleteResult.nextmApiResult.errorCode === 200) {
+            if (this.userDel.nextmApiResult.errorCode === 200) {
               this.reload(0);
               if (this.list.length < 1) {
                 this.page = this.page - 1;
               }
               this.alim("삭제 되었습니다.", this.successColor);
             } else {
-              this.alim(this.userDeleteResult.nextmApiResult.errorMessage, this.errorColor);
+              this.alim(this.userDel.nextmApiResult.errorMessage, this.errorColor);
             }
           } catch (error) {
             this.alim(error, this.errorColor);
@@ -493,12 +444,6 @@ export default {
       this.created_at = "";
       this.updated_at = "";
       this.adminUserKind = "";
-      this.adminUserPhoto = "";
-      this.adminUserChurch = "";
-      this.adminUserChurchPlatform = "";
-      this.adminUserChurchPosition = "";
-      this.adminUserYoutubeChannel = "";
-      this.adminUserYoutubeUrl = "";
     },
   },
 };

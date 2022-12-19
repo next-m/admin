@@ -2,13 +2,13 @@
   <div class="rectangle">
     <div class="flux">
       <h2>{{ titled }}<span class="txt">&nbsp;(TOTAL)</span></h2>
-      <v-btn
+      <!--v-btn
         class="btn"
         color="info"
         v-if="status === 'member'"
         @click="__showModalTemplate(require('@/components/modal/common/MemberToally'), {}, 800)"
         >월별 집계</v-btn
-      >
+      -->
     </div>
     <div class="titles" v-if="status === 'member'">
       <p>{{ naming[0] }}</p>
