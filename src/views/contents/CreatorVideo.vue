@@ -1,62 +1,14 @@
 <template>
     <section class="container">
       <div class="title-wrap">
-        <h1>콘텐츠 현황</h1>
+        <h1>콘텐츠 등록</h1>
       </div>
+
       <section class="member-manage">
-        <section class="member-list section-box border-outside">
-          <div class="border">
-            <div class="header">
-              <h2>콘텐츠 리스트</h2>
-              <div class="search">
-                <input type="text" placeholder="이름을 입력하세요" v-model="searchText" class="search-input" @keyup.enter="reload(1)" />
-                <v-btn small color="primary" dark @click="reload(1)" class="btn-search">조회</v-btn>
-              </div>
-            </div>
-            <table class="tbl mt20 user-list-tbl select-tbl">
-              <colgroup>
-                <col width="150" />
-                <col width="*" />
-                <col width="160" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>고유코드</th>
-                  <th class="left">크리에이터 고유코드</th>
-                  <th>크리에이터 채널</th>
-                  <th>콘탠츠 제목</th>
-                  <th>상태</th>
-                  <th>등록일시</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in list" :key="index" @click="userDetail(item.homepageUserCreatorSid)">
-                  <td>{{ item.homepageUserCreatorSid }}</td>
-                  <td class="left">{{ item.homepageUserEmail }}</td>
-                  <td>{{ item.homepageUserName }}</td>
-                  <td>{{ item.homepageUserCreatorYoutubeChannel }}</td>
-                  <td>{{ item.homepageUserCreatorStatusName }}</td>
-                  <td>{{ item.created_at | formatDate }}</td>
-                </tr>
-              </tbody>
-              <tfoot v-if="list.length < 1">
-                <tr>
-                  <td colspan="6">리스트가 없습니다.</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div class="text-center mt30">
-              <v-pagination v-model="page" :length="len" :total-visible="7"></v-pagination>
-            </div>
-          </div>
-        </section>
         <section class="init-wrap section-box border-outside">
           <div class="border">
             <div class="header">
-              <h2>설정</h2>
+              <h2>항목</h2>
               <div class="btn-group">
                 <v-btn small color="primary" dark @click="validate('reg')">등록</v-btn>
                 <v-btn small color="warning" dark @click="validate('modify')">수정</v-btn>
@@ -72,32 +24,38 @@
                     <col width="*" />
                   </colgroup>
                   <tr>
-                    <td>고유코드</td>
-                    <td><input type="text" v-model="homepageUserCreatorSid" /></td>
+                    <td>영상 고유코드</td>
+                    <td><input type="text" readonly v-model="homepageUserCreatorSid" /></td>
                   </tr>
                   <tr>
                     <td>크리에이터 고유코드</td>
-                    <td><input type="text" readonly v-model="homepageUserEmail" /></td>
+                    <td style="display:flex;" ><input type="text"  v-model="homepageUserEmail" style="margin-right:10px;" /><input type="text"  v-model="homepageUserEmail" readonly/></td>
                   </tr>
                   <tr>
-                    <td>콘탠츠 제목</td>
-                    <td><input type="text" readonly v-model="homepageUserName" /></td>
+                    <td>영상 타이틀</td>
+                    <td><input type="text"  v-model="homepageUserName" /></td>
                   </tr>
                   <tr>
                     <td>유튜브 URL</td>
-                    <td><input type="text" v-model="homepageUserCreatorChurch" /></td>
+                    <td style="display:flex;"><input type="text" v-model="homepageUserCreatorChurch" style="margin-right:20px;"/>
+                      <v-btn small @click="clear">Youtube</v-btn>
+                    </td>
                   </tr>
                   <tr>
-                    <td>콘탠츠 재생 수</td>
+                    <td>영상 카태고리</td>
+                    <pull-down :data="homepageUserCreatorStatus" :code="statusCode" @selected="homepageUserCreatorStatusNameProp" class="pull-down"></pull-down>
+                  </tr>
+                  <tr>
+                    <td>영상길이(초)</td>
                     <td><input type="text" v-model="homepageUserCreatorChurchPlatform" /></td>
+                  </tr>
+                  <tr>
+                    <td>영상 설명</td>
+                    <td><textarea></textarea></td>
                   </tr>
                   <tr>
                     <td>등록일</td>
                     <td><input type="text" v-model="homepageUserCreatorChurchPosition" /></td>
-                  </tr>
-                  <tr>
-                    <td>내용</td>
-                    <td><input type="text" v-model="homepageUserCreatorYoutubeUrl" /></td>
                   </tr>
                   <tr>
                   <td>콘탠츠 상태</td>
@@ -114,7 +72,27 @@
                   <col width="*" />
                 </colgroup>
                 <tr>
-                  <td>파일 첨부</td>
+                  <td>가로이미지</td>
+                  <td class="file-add" colspan="3">
+                    <div class="file-wrap">
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
+                      <ul class="thumbnail mt10">
+                        <li v-for="(item, index) in file" :key="index">
+                          <v-icon @click="confirmPhoto(item.url)">mdi-close-circle</v-icon>
+                          <div v-if="message === false" class="thubmnail-type" :class="{ 'pdf-bg': item.fileExt === 'pdf' }">
+                            <img
+                              :src="`${url}/file/fileView/${item.url}?size=80`"
+                              @click="thumbnailModal({ id: item.url, fileExt: item.fileExt, name: item.name })"
+                            />
+                          </div>
+                        </li>
+                        <div v-if="message === true">첨부된 파일이 없습니다.</div>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>세로 이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
                       <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
@@ -139,6 +117,26 @@
             <alim :open="snackbar" :txt="text" :color="color" @reset="emitReset"></alim>
             <!-- 삭제 컨펌 -->
             <confirm :type="type" :open="dialog" :txt="dialogText" :h1="dialogTitle" @resetConfirm="emitResetConfirm"></confirm>
+          </div>
+        </section>
+        <section class="init-wrap section-box border-outside">
+          <div class="border youtube">
+            <label>유튜브 영상</label>
+            <div>
+              <iframe id="player" type="text/html" width="100%" height="260"
+              src="http://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1&origin=http://example.com"
+              frameborder="0"></iframe>
+            </div>
+            <div class="cretorVideoImage">
+              <div class="imageItem">
+                <label for="">가로이미지</label>
+                <div class="imageZone"></div>
+              </div>
+              <div class="imageItem">
+                <label for="">세로이미지</label>
+                <div class="imageZone"></div>
+              </div>
+            </div>
           </div>
         </section>
       </section>
@@ -414,13 +412,40 @@
       }
     }
     & .section-box {
-      width: calc(50% - 20px);
+      width: calc(50% - 10px);
       & .border {
         & .field {
           & .required {
             font-weight: 700;
           }
         }
+      }
+    }
+  }
+  .youtube label{
+    font-size:14px;
+    width:100%;
+    display:block;
+    background-color: #ccc;
+    margin-bottom:10px;
+    padding:3px 0 3px 3px;
+  }  
+  .cretorVideoImage label{
+    font-size:14px;
+    width:100%;
+    display:block;
+    background-color: #ccc;
+    padding:3px 0 3px 3px;
+  }  
+  .cretorVideoImage{
+    margin-top:20px;
+    display: flex;
+    justify-content: space-between;
+    & .imageItem{
+      width:calc(50% - 10px);
+      & .imageZone{
+        border:1px solid #ccc;
+        height:300px;
       }
     }
   }

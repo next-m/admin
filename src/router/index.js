@@ -436,6 +436,17 @@ const router = new VueRouter({
       },
     },        
     {
+      path: "/contents/CreatorVideo",
+      name: "creatorvideo",
+      meta: { lnb: "콘탠츠 관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/contents/CreatorVideo.vue"),
+      },
+    },        
+
+    {
       path: "/contents/creatorVideoList",
       name: "creatorvideolist",
       meta: { lnb: "콘탠츠 관리" },
