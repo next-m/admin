@@ -11,7 +11,6 @@ async function getCreatorVideoList(data) {
   return createInstanceWithAuth('/creatorVideo/list', {}, param, 'application/json; charset=utf-8').get();
 }
 async function creatorVideoDetail(data) {
-  console.log(data);
   return createInstanceWithAuth(`/api/v1/creatorVideo/${data.creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').get();
 }
 async function creatorVideoInsert(data) {
@@ -60,7 +59,7 @@ async function creatorVideoDelete(creatorVideoSid) {
   return createInstanceWithAuth(`/api/v1/creatorVideo/${creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').delete();
 }
 async function youtubeSearch(data) {
-  return createInstanceWithAuth(`/api/v1/youtube/${data.youtubeId}`, {}, {}, 'application/json; charset=utf-8').get();
+  return createInstanceWithAuth(`/youtube/${data.youtubeId}`, {}, {}, 'application/json; charset=utf-8').get();
 }
 
-export { creatorVideoInsert, creatorVideoUpdate, creatorVideoDetail, creatorVideoDelete, getCreatorVideoList, youtubeSearch };
+export {creatorVideoInsert, creatorVideoUpdate, creatorVideoDetail, creatorVideoDelete, getCreatorVideoList, youtubeSearch };

@@ -25,42 +25,42 @@
                   </colgroup>
                   <tr>
                     <td>영상 고유코드</td>
-                    <td><input type="text" readonly v-model="homepageUserCreatorSid" /></td>
+                    <td><input type="text" readonly v-model="creatorVideoSid" /></td>
                   </tr>
                   <tr>
                     <td>크리에이터 고유코드</td>
-                    <td style="display:flex;" ><input type="text"  v-model="homepageUserEmail" style="margin-right:10px;" /><input type="text"  v-model="homepageUserEmail" readonly/></td>
+                    <td style="display:flex;" ><input type="text"  v-model="homepageUserSid" style="margin-right:10px;" /><input type="text"  v-model="homepageUserSidName" readonly/></td>
                   </tr>
                   <tr>
                     <td>영상 타이틀</td>
-                    <td><input type="text"  v-model="homepageUserName" /></td>
+                    <td><input type="text"  v-model="creatorVideoTitle" /></td>
                   </tr>
                   <tr>
                     <td>유튜브 URL</td>
-                    <td style="display:flex;"><input type="text" v-model="homepageUserCreatorChurch" style="margin-right:20px;"/>
-                      <v-btn small @click="clear">Youtube</v-btn>
+                    <td style="display:flex;"><input type="text" v-model="creatorVideoYoutubeUrl" style="margin-right:20px;"/>
+                      <v-btn small @click="youtubeSearch">Youtube</v-btn>
                     </td>
                   </tr>
                   <tr>
                     <td>영상 카태고리</td>
-                    <pull-down :data="homepageUserCreatorStatus" :code="statusCode" @selected="homepageUserCreatorStatusNameProp" class="pull-down"></pull-down>
+                    <pull-down :data="creatorVideoCategory" :code="creatorVideoCategoryCode" @selected="creatorVideoCategoryProp" class="pull-down"></pull-down>
                   </tr>
                   <tr>
                     <td>영상길이(초)</td>
-                    <td><input type="text" v-model="homepageUserCreatorChurchPlatform" /></td>
+                    <td><input type="text" v-model="creatorVideoLangs" /></td>
                   </tr>
                   <tr>
                     <td>영상 설명</td>
-                    <td><textarea></textarea></td>
+                    <td><textarea v-model="creatorVideoDoc"></textarea></td>
                   </tr>
                   <tr>
                     <td>등록일</td>
-                    <td><input type="text" v-model="homepageUserCreatorChurchPosition" /></td>
+                    <td><input type="text" v-model="creatorVideoDate" /></td>
                   </tr>
                   <tr>
                   <td>콘탠츠 상태</td>
                   <td >
-                    <pull-down :data="homepageUserCreatorStatus" :code="statusCode" @selected="homepageUserCreatorStatusNameProp" class="pull-down"></pull-down>
+                    <pull-down :data="creatorVideoStatus" :code="creatorVideoStatusCode" @selected="creatorVideoStatusProp" class="pull-down"></pull-down>
                   </td>
                 </tr>
                 </table>
@@ -171,78 +171,71 @@
         list: [],
         message: true,
         file: [],
-        //유저 디테일 데이터
-        homepageUserCreatorSid: "",
-        homepageUserName: "",
-        homepageUserEmail: "",
-        adminUserPhoto:'',
-        homepageUserCreatorChurch:'',
-        homepageUserCreatorChurchPlatform:'',
-        homepageUserCreatorChurchPosition:'',
-        homepageUserCreatorYoutubeChannel:'',
-        homepageUserCreatorYoutubeUrl:'',
-        homepageUserCreatorStatus:'',
-        homepageUserCreatorStatusName:'',
-        nextmFiles: [],
-  
-        statusCode: "SYS22A26B002",      
+
+        //디테일 데이터
+        creatorVideoSid: "",
+        creatorVideoSid:"",
+        homepageUserSid:"",
+        creatorVideoTitle:"",
+        creatorVideoYoutubeUrl:"",
+        creatorVideoLangs:"",
+        creatorVideoDate:"",
+        creatorVideoDoc:"",
+        homepageUserSidName:"",
+        creatorVideoStatus:"",
+        creatorVideoCategory:"",
+        nextmFiles: [],  
+        creatorVideoStatusCode: "SYS22B01B002",      
+        creatorVideoCategoryCode: "SYS22A17B017",              
         url: process.env.VUE_APP_API,
       };
     },
     computed: {
       ...mapGetters("creatorUser", ["getCreatorUserList", "getCreatorUserDetail", "creatorUserAdd", "creatorUserDeleteResult"]),
+      ...mapGetters("creatorVideo", ["getYoutubeResult,getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd", "creatorVideoDeleteResult"]),      
       ...mapGetters("common", ["fileDeleteResult"]),
     },
-    watch: {
-      page() {
-        this.reload(0);
-      },
-      size() {
-        this.reload(0);
-      },
-    },
     mounted() {
-      this.reload(0);
+     // this.userDetail();
     },
     methods: {
-      homepageUserCreatorStatusNameProp(data) {
-        this.homepageUserCreatorStatus = data.sysCodeSid;
-        this.homepageUserCreatorStatusName = data.sysCodeName;
+      creatorVideoCategoryProp(data) {
+        this.creatorVideoCategory = data.sysCodeSid;
+        this.creatorVideoCategoryName = data.sysCodeName;
       },    
-      //데이터 불러오기 num:0 => 설정 초기화, num: 1 => 페이징 초기화
-      async reload(num) {
-        if (num === 0) {
-          this.clear();
+      creatorVideoStatusProp(data) {
+        this.creatorVideoStatus = data.sysCodeSid;
+        this.creatorVideoStatusName = data.sysCodeName;
+      },          
+      //youtube 정보 가지고 오기
+      async youtubeSearch() {
+        if (this.creatorVideoYoutubeUrl == '') {
+          this.alim("유튜브 URL을 입력해 주세요.", this.errorColor);          
+          return false;
         }
-        //검색할경우 페이징 초기화
-        if (num === 1) {
-          this.page = 1;
-        }
-        try {
-          bus.$emit("start:spinner");
-          await this.$store.dispatch("creatorUser/GET_CREATORUSER_LIST", {
-            size: this.size,
-            page: this.page,
-            searchText: this.searchText,
-          });
-          if (this.getCreatorUserList.nextmApiResult.errorCode === 200) {
-            const userList = this.getCreatorUserList.nextmApiResult.homepageUserCreator;
-            this.list = userList.data;
-            this.len = userList.last_page;
-          } else {
-            this.alim(this.getCreatorUserList.nextmApiResult.errorMessage, this.errorColor);
-          }
-        } catch (error) {
-          this.alim(error, this.errorColor);
-        } finally {
-          bus.$emit("end:spinner");
-        }
+        let youtubeId = this.creatorVideoYoutubeUrl.split('/').slice(-1)[0];
+        const youtubeData = {youtubeId: youtubeId};
+        await this.$store.dispatch('creatorVideo/GET_YOUTUBE_INFO', youtubeData);
+        console.log(this.getYoutubeResult);
+        // if (this.getYoutubeInfo.nextmApiResult.errorCode == 200) {
+        //   let video = this.getYoutubeInfo.nextmApiResult.youtube.video;
+
+        //   this.creatorVideoTitle = video.snippet.title;
+        //   this.creatorVideoLangs = video.contentDetails.videoTimeSec;
+        //   this.creatorVideoDoc = video.snippet.description;
+        // } else {
+        //   this.$notify({
+        //     group: 'notifyMessage',
+        //     text: this.getYoutubeInfo.nextmApiResult.errorMessage,
+        //   });
+        // }
       },
+
       //유저 상세 정보
       async userDetail(id) {
         try {
           bus.$emit("start:spinner");
-          await this.$store.dispatch("creatorUser/GET_CREATORUSER_DETAIL",id);
+          await this.$store.dispatch("creatorVideo/GET_CREATORVIDEO_DETAIL",id);
           if (this.getCreatorUserDetail.nextmApiResult.errorCode === 200) {
             const userDetail = this.getCreatorUserDetail.nextmApiResult.homepageUserCreator;
 
@@ -284,28 +277,26 @@
         const file = this.file;
         this.$modal.show(thumbnailModal, { updateData: this.reload, file, data }, getPopupOpt("thumbnailModal", "1000px", "auto", false));
       },    
-      //유저 추가
+      // 추가
       async reg() {
         try {
           bus.$emit("start:spinner");
-          await this.$store.dispatch("creatorUser/CREATORUSER_ADD", {
-            homepageUserCreatorSid : this.homepageUserCreatorSid,
-            homepageUserName : this.homepageUserName,
-            homepageUserEmail : this.homepageUserEmail,
-            homepageUserCreatorChurch : this.homepageUserCreatorChurch,
-            homepageUserCreatorChurchPlatform : this.homepageUserCreatorChurchPlatform,
-            homepageUserCreatorChurchPosition : this.homepageUserCreatorChurchPosition,
-            homepageUserCreatorYoutubeChannel : this.homepageUserCreatorYoutubeChannel,
-            homepageUserCreatorYoutubeUrl : this.homepageUserCreatorYoutubeUrl,
-            homepageUserCreatorStatus : this.homepageUserCreatorStatus,
-  
+          await this.$store.dispatch("creatorVideo/CREATORVIDEO_ADD", {
+            homepageUserSid:this.homepageUserSid,
+            creatorVideoTitle:this.creatorVideoTitle,
+            creatorVideoYoutubeUrl:this.creatorVideoYoutubeUrl,
+            creatorVideoLangs:this.creatorVideoLangs,
+            creatorVideoDate:this.creatorVideoDate,
+            creatorVideoDoc:this.creatorVideoDoc,
+            creatorVideoStatus:this.creatorVideoStatus,
+            
             nextmFiles: this.nextmFiles,                                                                      
           });
-          if (this.creatorUserAdd.nextmApiResult.errorCode == 200) {
+          if (this.creatorVideoAdd.nextmApiResult.errorCode == 200) {
             this.alim("관리자가 추가 되었습니다.", this.successColor);
             this.reload(0);
           } else {
-            this.alim(this.creatorUserAdd.nextmApiResult.errorMessage, this.errorColor);
+            this.alim(this.creatorVideoAdd.nextmApiResult.errorMessage, this.errorColor);
           }
         } catch (error) {
           this.alim(error, this.errorColor);
@@ -328,12 +319,12 @@
           this.modify();
         }
       },
-      //유저 수정
+      // 수정
       async modify() {
         try {
           bus.$emit("start:spinner");
           console.log( this.homepageUserCreatorStatus);
-          const res = await this.__getResponse("creatorUser/CREATORUSER_MODIFY", {
+          const res = await this.__getResponse("creatorVideo/CREATORVIDEO_MODIFY", {
             homepageUserCreatorSid : this.homepageUserCreatorSid,
             homepageUserName : this.homepageUserName,
             homepageUserEmail : this.homepageUserEmail,
@@ -352,21 +343,21 @@
           bus.$emit("end:spinner");
         }
       },
-      //유저 삭제
+      // 삭제
       async emitResetConfirm(data) {
         if (data.del === "Y") {
           if (data.type === "list") {
             try {
               bus.$emit("start:spinner");
-              await this.$store.dispatch("creatorUser/CREATORUSER_DELETE", this.homepageUserCreatorSid);
-              if (this.creatorUserDeleteResult.nextmApiResult.errorCode === 200) {
+              await this.$store.dispatch("creatorVideo/CREATORVIDEO_DELETE", this.homepageUserCreatorSid);
+              if (this.creatorVideoDeleteResult.nextmApiResult.errorCode === 200) {
                 this.reload(0);
                 if (this.list.length < 1) {
                   this.page = this.page - 1;
                 }
                 this.alim("삭제 되었습니다.", this.successColor);
               } else {
-                this.alim(this.creatorUserDeleteResult.nextmApiResult.errorMessage, this.errorColor);
+                this.alim(this.creatorVideoDeleteResult.nextmApiResult.errorMessage, this.errorColor);
               }
             } catch (error) {
               this.alim(error, this.errorColor);
