@@ -6,6 +6,14 @@ import {
   noticeDel,
   noticeModify,
   noticeWrite,
+
+  getOneononeList,
+  getOneononeDetail,
+  oneononeDel,
+  oneononeModify,
+  oneononeWrite,
+
+
   getFaqList,
   getFaqDetail,
   faqModify,
@@ -39,13 +47,20 @@ const common = {
     getMenuList: {},
     getNoticeList: {},
     getNoticeDetail: {},
+    noticeDelResult: {},
+    noticeModifyResult: {},
+    noticeWriteResult: {},
+
+    getOneononeList: {},
+    getOneononeDetail: {},
+    oneononeDelResult: {},
+    oneononeModifyResult: {},
+    oneononeWriteResult: {},
+    
     getFaqList: {},
     getFaqDetail: {},
     setStrativeZoneResult: {},
     fileDeleteResult: {},
-    noticeDelResult: {},
-    noticeModifyResult: {},
-    noticeWriteResult: {},
     faqModifyResult: {},
     faqDelResult: {},
     faqWriteResult: {},
@@ -75,12 +90,39 @@ const common = {
     getMenuList: state => {
       return state.getMenuList;
     },
+
     getNoticeList: state => {
       return state.getNoticeList;
     },
     getNoticeDetail: state => {
       return state.getNoticeDetail;
     },
+    noticeDelResult: state => {
+      return state.noticeDelResult;
+    },
+    noticeModifyResult: state => {
+      return state.noticeModifyResult;
+    },
+    noticeWriteResult: state => {
+      return state.noticeWriteResult;
+    },    
+
+    getOneononeList: state => {
+      return state.getOneononeList;
+    },
+    getOneononeDetail: state => {
+      return state.getOneononeDetail;
+    },
+    oneononeDelResult: state => {
+      return state.oneononeDelResult;
+    },
+    oneononeModifyResult: state => {
+      return state.oneononeModifyResult;
+    },
+    oneononeWriteResult: state => {
+      return state.oneononeWriteResult;
+    },    
+    
     getFaqList: state => {
       return state.getFaqList;
     },
@@ -93,15 +135,6 @@ const common = {
     },
     fileDeleteResult: state => {
       return state.fileDeleteResult;
-    },
-    noticeDelResult: state => {
-      return state.noticeDelResult;
-    },
-    noticeModifyResult: state => {
-      return state.noticeModifyResult;
-    },
-    noticeWriteResult: state => {
-      return state.noticeWriteResult;
     },
     faqModifyResult: state => {
       return state.faqModifyResult;
@@ -168,12 +201,39 @@ const common = {
     getMenuList(state, data) {
       state.getMenuList = data;
     },
+
     getNoticeList(state, data) {
       state.getNoticeList = data;
     },
     getNoticeDetail(state, data) {
       state.getNoticeDetail = data;
     },
+    noticeDelResult(state, result) {
+      state.noticeDelResult = result;
+    },
+    noticeModifyResult(state, result) {
+      state.noticeModifyResult = result;
+    },
+    noticeWriteResult(state, result) {
+      state.noticeWriteResult = result;
+    },
+
+    getOneononeList(state, data) {
+      state.getOneononeList = data;
+    },
+    getOneononeDetail(state, data) {
+      state.getOneononeDetail = data;
+    },
+    oneononeDelResult(state, result) {
+      state.oneononeDelResult = result;
+    },
+    oneononeModifyResult(state, result) {
+      state.oneononeModifyResult = result;
+    },
+    oneononeWriteResult(state, result) {
+      state.oneononeWriteResult = result;
+    },
+
     getFaqList(state, data) {
       state.getFaqList = data;
     },
@@ -186,15 +246,6 @@ const common = {
     },
     fileDeleteResult(state, result) {
       state.fileDeleteResult = result;
-    },
-    noticeDelResult(state, result) {
-      state.noticeDelResult = result;
-    },
-    noticeModifyResult(state, result) {
-      state.noticeModifyResult = result;
-    },
-    noticeWriteResult(state, result) {
-      state.noticeWriteResult = result;
     },
     faqModifyResult(state, result) {
       state.faqModifyResult = result;
@@ -262,6 +313,7 @@ const common = {
       const { data } = await getMenuList(id);
       commit("getMenuList", data);
     },
+
     async NOTICE_LIST({ commit }, datas) {
       const { data } = await getNoticeList(datas);
       commit("getNoticeList", data);
@@ -270,6 +322,43 @@ const common = {
       const { data } = await getNoticeDetail(datas);
       commit("getNoticeDetail", data);
     },
+    async NOTICE_DEL({ commit }, id) {
+      const { data } = await noticeDel(id);
+      commit("noticeDelResult", data);
+    },
+    async NOTICE_MODIFY({ commit }, datas) {
+      const { data } = await noticeModify(datas);
+      commit("noticeModifyResult", data);
+    },
+    async NOTICE_WRITE({ commit }, datas) {
+      const { data } = await noticeWrite(datas);
+      commit("noticeWriteResult", data);
+    },
+
+
+    async ONEONONE_LIST({ commit }, datas) {
+      const { data } = await getOneononeList(datas);
+      commit("getOneononeList", data);
+    },
+    async ONEONONE_DETAIL({ commit }, datas) {
+      const { data } = await getOneononeDetail(datas);
+      commit("getOneononeDetail", data);
+    },
+    async ONEONONE_DEL({ commit }, id) {
+      const { data } = await oneononeDel(id);
+      commit("oneononeDelResult", data);
+    },
+    async ONEONONE_MODIFY({ commit }, datas) {
+      const { data } = await oneononeModify(datas);
+      commit("oneononeModifyResult", data);
+    },
+    async ONEONONE_WRITE({ commit }, datas) {
+      console.log(1);
+      const { data } = await oneononeWrite(datas);
+      console.log(2);
+      commit("oneononeWriteResult", data);
+    },
+
     async FAQ_LIST({ commit }, datas) {
       const { data } = await getFaqList(datas);
       commit("getFaqList", data);
@@ -285,18 +374,6 @@ const common = {
     async FILE_DELETE({ commit }, id) {
       const { data } = await fileDelete(id);
       commit("fileDeleteResult", data);
-    },
-    async NOTICE_DEL({ commit }, id) {
-      const { data } = await noticeDel(id);
-      commit("noticeDelResult", data);
-    },
-    async NOTICE_MODIFY({ commit }, datas) {
-      const { data } = await noticeModify(datas);
-      commit("noticeModifyResult", data);
-    },
-    async NOTICE_WRITE({ commit }, datas) {
-      const { data } = await noticeWrite(datas);
-      commit("noticeWriteResult", data);
     },
     async FAQ_MODIFY({ commit }, datas) {
       const { data } = await faqModify(datas);

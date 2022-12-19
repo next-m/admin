@@ -40,7 +40,7 @@
                 <td>{{ item.homepageUserSid }}</td>
                 <td>{{ item.homepageUserName }}</td>
                 <td>{{ item.homepageUserEmail }}</td>
-                <td>{{ item.homePageUserCreateDateTime }}</td>
+                <td>{{ __getLocalTime(item.homepageUserCreateDateTime) }}</td>
                 <td>{{ item.homepageUserKindName }}</td>
                 <td>{{ item.homePageUserStatusName }}</td>
               </tr>
@@ -211,9 +211,10 @@ import bus from "@/utils/bus";
 import alimMixin from "@/mixins/alim.js";
 import deleteMixin from "@/mixins/delete.js";
 import responseMixin from "@/mixins/response";
+import utcMixin from "@/mixins/utcTime.js";
 export default {
   components: { alim, confirm, PullDown },
-  mixins: [loading, alimMixin, deleteMixin, responseMixin],
+  mixins: [loading, alimMixin, deleteMixin, responseMixin,utcMixin],
   props: ["size"],
   data() {
     return {

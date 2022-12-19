@@ -477,6 +477,37 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/homepage/board/oneonone/list",
+      name: "oneonone_list",
+      meta: { lnb: "홈페이지 관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/homepage/OneOnOne.vue"),
+      },
+    },
+    {
+      path: "/homepage/board/oneonone/write",
+      name: "oneononee_write",
+      meta: { lnb: "홈페이지 관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/homepage/OneOnOneWrite.vue"),
+      },
+    },
+
+    {
+      path: "/homepage/board/oneonone/view/:id",
+      name: "oneonone_view",
+      meta: { lnb: "홈페이지 관리" },
+      components: {
+        ui,
+        top,
+        contents: () => import("@/views/homepage/OneOnOneView.vue"),
+      },
+    },
+    {
       path: "/homepage/board/faq/list",
       name: "faq",
       meta: { lnb: "홈페이지 관리" },

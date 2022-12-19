@@ -1,7 +1,7 @@
 <template>
   <section class="container">
     <div class="title-wrap">
-      <h1>공지사항</h1>
+      <h1>1:1 문의</h1>
     </div>
     <section class="member-manage">
       <section class="member-list section-box border-outside">
@@ -15,7 +15,7 @@
           </div>
           <table class="tbl mt20 user-list-tbl">
             <caption>
-              공지사항 리스트 테이블
+              1:1 문의 리스트
             </caption>
             <colgroup>
               <col width="60" />
@@ -37,14 +37,14 @@
               <tr
                 v-for="(item, index) in list"
                 :key="index"
-                @click="detail(item.boardNoticeSid)"
-                :class="{ 'notice-top': item.boardNoticeTopFlag === 'Y' }"
+                @click="detail(item.boardOneononeSid)"
+                :class="{ 'notice-top': item.boardOneononeTopFlag === 'Y' }"
               >
-                <td>{{ item.boardNoticeSid }}</td>
-                <td class="left subject"><v-icon v-if="item.boardNoticeTopFlag === 'Y'">mdi-pin</v-icon>{{ item.boardNoticeTitle }}</td>
-                <td>{{ item.boardNoticeCreateName }}</td>
-                <td>{{ __getLocalTime(item.created_at) }}</td>
-                <td>{{ __getLocalTime(item.updated_at) }}</td>
+                <td>{{ item.boardOneononeSid }}</td>
+                <td class="left subject"><v-icon v-if="item.boardOneononeTopFlag === 'Y'">mdi-pin</v-icon>{{ item.boardOneononeTitle }}</td>
+                <td>{{ item.boardOneononeCreateName }}</td>
+                <td>{{__getLocalTime(item.created_at) }}</td>
+                <td>{{__getLocalTime(item.updated_at) }}</td>
               </tr>
             </tbody>
             <tfoot v-if="list.length < 1">
@@ -85,7 +85,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("common", ["getNoticeList"]),
+    ...mapGetters("common", ["getOneononeList"]),
   },
   watch: {
     page() {
@@ -103,18 +103,18 @@ export default {
     async reload() {
       try {
         bus.$emit("start:spinner");
-        await this.$store.dispatch("common/NOTICE_LIST", {
+        await this.$store.dispatch("common/ONEONONE_LIST", {
           size: this.size,
           page: this.page,
           searchText: this.searchText,
         });
-        const res = this.getNoticeList.nextmApiResult;
+        const res = this.getOneononeList.nextmApiResult;
         if (parseInt(res.errorCode) !== 200) {
           this.alim(res.errorMessage, this.errorColor);
           return false;
         }
 
-        const data = res.boardNotice;
+        const data = res.boardOneonone;
         this.list = data.data;
         this.len = data.last_page;
       } catch (error) {
@@ -124,10 +124,10 @@ export default {
       }
     },
     detail(id) {
-      this.$router.push(`/homepage/board/notice/view/${id}`);
+      this.$router.push(`/homepage/board/oneonone/view/${id}`);
     },
     write() {
-      this.$router.push("/homepage/board/notice/write");
+      this.$router.push("/homepage/board/oneonone/write");
     },
   },
 };

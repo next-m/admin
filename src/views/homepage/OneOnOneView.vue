@@ -1,14 +1,14 @@
 <template>
   <section class="container">
     <div class="title-wrap">
-      <h1>공지사항</h1>
+      <h1>1:1 문의</h1>
     </div>
     <section class="member-manage">
       <section class="member-list section-box border-outside">
         <div class="border">
           <table class="read-tbl">
             <caption>
-              공지사항 읽기 테이블
+              1:1문의 
             </caption>
             <colgroup>
               <col width="150" />
@@ -25,12 +25,12 @@
               </tr>
               <tr>
                 <td>작성자</td>
-                <td>{{ boardNoticeCreateName }}</td>
+                <td>{{ boardOneononeCreateName }}</td>
                 <td>상단공지</td>
-                <td v-if="modify === false">{{ boardNoticeTopFlag }}</td>
+                <td v-if="modify === false">{{ boardOneononeTopFlag }}</td>
                 <td v-else>
                   <div class="radio">
-                    <v-radio-group v-model="boardNoticeTopFlag" :mandatory="false">
+                    <v-radio-group v-model="boardOneononeTopFlag" :mandatory="false">
                       <v-radio label="사용함" value="Y"></v-radio>
                       <v-radio label="사용안함" value="N"></v-radio>
                     </v-radio-group>
@@ -39,31 +39,29 @@
               </tr>
               <tr>
                 <td>제목</td>
-                <td colspan="3" v-if="modify === false">{{ boardNoticeTitle }}</td>
-                <td colspan="3" v-else><input type="text" v-model="boardNoticeTitle" /></td>
+                <td colspan="3" v-if="modify === false">{{ boardOneononeTitle }}</td>
+                <td colspan="3" v-else><input type="text" v-model="boardOneononeTitle" /></td>
               </tr>
               <tr class="ql-snow">
-                <td>내용</td>
-                <td colspan="3" v-if="modify === false" v-html="boardNoticeContent" class="ql-editor"></td>
-                <td colspan="3" v-else><quill-editor ref="myTextEditor" v-model="boardNoticeContent" :options="options"> </quill-editor></td>
+                <td>문의글</td>
+                <td colspan="3" v-if="modify === false" v-html="boardOneononeContent"></td>
+                <td colspan="3" v-else><textarea  v-model="boardOneononeContent"> </textarea></td>
+              </tr>
+              <tr class="ql-snow">
+                <td rowspan="2">답변글</td>
+                <td colspan="3" v-if="modify === false" v-html="boardOneononeAnswer"></td>
+                <td colspan="3" v-else><textarea  v-model="boardOneononeAnswer"> </textarea></td>
               </tr>
               <tr>
-                <td>첨부파일</td>
-                <td colspan="3">
-                  <div class="download-wrap">
-                    <div class="file-wrap" v-if="modify === true">
-                      <file-upload
-                        :deleteAll="deleteAllFiles"
-                        @uploadFiles="uploadFiles"
-                        :fileType="'image/*, .pdf, .doc, .hwp, .ppt, .xls, .docx, .pptx, .xlsx'"
-                      ></file-upload>
-                    </div>
-                    <div class="download" v-for="(item, index) in file" :key="index">
-                      <span @click="fileDownload({ id: item.url, fileExt: item.fileExt, name: item.name })"
-                        ><v-icon>mdi-content-save</v-icon> {{ item.name }}
-                      </span>
-                      <v-icon @click="confirmFile(item.url)" v-if="modify === true">mdi-close-circle</v-icon>
-                    </div>
+                <td colspan="3"  v-if="modify === false">                  
+                  &nbsp;
+                </td>
+                <td colspan="3"  v-else>
+                  <div class="radio">
+                    <v-radio-group v-model="mailSendFlag" :mandatory="false">
+                      <v-radio label="답변을 메일로 보내기" value="Y"></v-radio>
+                      <v-radio label="답변을 메일로 보내지 않음" value="N"></v-radio>
+                    </v-radio-group>
                   </div>
                 </td>
               </tr>
@@ -97,34 +95,28 @@ import { mapGetters } from "vuex";
 import alim from "@/components/dialog/Alim.vue";
 import confirm from "@/components/dialog/Confirm.vue";
 import { getAdminUserNameCookie } from "@/utils/cookie";
-import "quill/dist/quill.core.css";
-import "quill/dist/quill.snow.css";
-import "quill/dist/quill.bubble.css";
-import { quillEditor, Quill } from "vue-quill-editor";
-import ImageResize from "quill-image-resize-module-plus";
-import { ImageDrop } from "quill-image-drop-module";
-Quill.register("modules/imageDrop", ImageDrop);
-Quill.register("modules/imageResize", ImageResize);
 import fileUploadMixin from "@/mixins/fileUpload";
 import alimMixin from "@/mixins/alim.js";
 import deleteMixin from "@/mixins/delete.js";
 import utcMixin from "@/mixins/utcTime.js";
 export default {
-  components: { alim, confirm, quillEditor, FileUpload },
+  components: { alim, confirm, FileUpload },
   mixins: [loading, fileUploadMixin, alimMixin, deleteMixin,utcMixin],
   data() {
     return {
       createdAt: "",
       updatedAt: "",
-      boardNoticeCreateName: "",
-      boardNoticeTopFlag: "",
-      boardNoticeTitle: "",
-      boardNoticeContent: "",
-      boardNoticeSid: "",
+      boardOneononeCreateName: "",
+      boardOneononeTopFlag: "",
+      boardOneononeTitle: "",
+      boardOneononeContent: "",
+      boardOneononeAnswer: "",      
+      boardOneononeSid: "",
+      mailSendFlag:"N",
       modify: false,
-      boardNoticeGroupNo: "",
-      boardNoticeGroupSort: "",
-      boardNoticeGroupDepth: "",
+      boardOneononeGroupNo: "",
+      boardOneononeGroupSort: "",
+      boardOneononeGroupDepth: "",
       file: [],
       channeltuneFiles: [],
       options: {
@@ -155,7 +147,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("common", ["getNoticeDetail", "noticeModifyResult", "noticeDelResult"]),
+    ...mapGetters("common", ["getOneononeDetail", "oneononeModifyResult", "oneononeDelResult"]),
     ...mapGetters("common", ["fileDeleteResult"]),
   },
   async mounted() {
@@ -164,7 +156,7 @@ export default {
   //데이터 불러오기
   methods: {
     linkList() {
-      this.$router.push("/homepage/board/notice/list");
+      this.$router.push("/homepage/board/oneonone/list");
     },
     modifyset() {
       this.modify = true;
@@ -173,32 +165,27 @@ export default {
       const id = this.$route.params.id;
       try {
         bus.$emit("start:spinner");
-        await this.$store.dispatch("common/NOTICE_DETAIL", id);
-        const res = this.getNoticeDetail.nextmApiResult;
+        await this.$store.dispatch("common/ONEONONE_DETAIL", id);
+        const res = this.getOneononeDetail.nextmApiResult;
         if (parseInt(res.errorCode) !== 200) {
           this.alim(res.errorMessage, this.errorColor);
           bus.$emit("end:spinner");
           return false;
         }
 
-        const detail = res.boardNotice;
+        const detail = res.boardOneonone;
         this.createdAt = detail.created_at;
         this.updatedAt = detail.updated_at;
-        this.boardNoticeCreateName = detail.boardNoticeCreateName;
-        this.boardNoticeTopFlag = detail.boardNoticeTopFlag;
-        this.boardNoticeTitle = detail.boardNoticeTitle;
-        this.boardNoticeContent = detail.boardNoticeContent;
-        this.boardNoticeSid = detail.boardNoticeSid;
-        this.boardNoticeGroupNo = detail.boardNoticeGroupNo;
-        this.boardNoticeGroupSort = detail.boardNoticeGroupSort;
-        this.boardNoticeGroupDepth = detail.boardNoticeGroupDepth;
-        //img url
-        this.file = [];
-        detail.fileResult.forEach(row => {
-          if (row.fileSid !== "") {
-            this.file.push({ url: row.fileSid, name: row.fileFileName, fileExt: row.fileExt });
-          }
-        });
+        this.boardOneononeCreateName = detail.boardOneononeCreateName;
+        this.boardOneononeTopFlag = detail.boardOneononeTopFlag;
+        this.boardOneononeTitle = detail.boardOneononeTitle;
+        this.boardOneononeContent = detail.boardOneononeContent;
+        this.boardOneononeAnswer = detail.boardOneononeAnswer;        
+        this.boardOneononeSid = detail.boardOneononeSid;
+        this.boardOneononeGroupNo = detail.boardOneononeGroupNo;
+        this.boardOneononeGroupSort = detail.boardOneononeGroupSort;
+        this.boardOneononeGroupDepth = detail.boardOneononeGroupDepth;
+
       } catch (error) {
         this.alim(error, this.errorColor);
       } finally {
@@ -206,11 +193,11 @@ export default {
       }
     },
     async save() {
-      if (this.boardNoticeTitle == "") {
+      if (this.boardOneononeTitle == "") {
         this.alim("제목을 입력해주세요.", this.errorColor);
         return false;
       }
-      if (this.boardNoticeContent == "") {
+      if (this.boardOneononeContent == "") {
         this.alim("내용을 입력해주세요.", this.errorColor);
         return false;
       }
@@ -218,19 +205,21 @@ export default {
       try {
         bus.$emit("start:spinner");
         const name = getAdminUserNameCookie();
-        await this.$store.dispatch("common/NOTICE_MODIFY", {
-          boardNoticeSid: this.boardNoticeSid,
-          boardNoticeTopFlag: this.boardNoticeTopFlag,
-          boardNoticeTitle: this.boardNoticeTitle,
-          boardNoticeContent: this.boardNoticeContent,
-          boardNoticeCreateName: name,
-          boardNoticeGroupNo: this.boardNoticeGroupNo,
-          boardNoticeGroupSort: this.boardNoticeGroupNo,
-          boardNoticeGroupDepth: this.boardNoticeGroupSort,
+        await this.$store.dispatch("common/ONEONONE_MODIFY", {
+          boardOneononeSid: this.boardOneononeSid,
+          boardOneononeTopFlag: this.boardOneononeTopFlag,
+          boardOneononeTitle: this.boardOneononeTitle,
+          boardOneononeContent: this.boardOneononeContent,
+          boardOneononeAnswer: this.boardOneononeAnswer,          
+          boardOneononeCreateName: name,
+          boardOneononeGroupNo: this.boardOneononeGroupNo,
+          boardOneononeGroupSort: this.boardOneononeGroupNo,
+          boardOneononeGroupDepth: this.boardOneononeGroupSort,
           channeltuneFiles: this.channeltuneFiles,
+          mailSendFlag:this.mailSendFlag
         });
 
-        const res = this.noticeModifyResult.nextmApiResult;
+        const res = this.oneononeModifyResult.nextmApiResult;
         if (parseInt(res.errorCode) !== 200) {
           this.alim(this.errorMessage, this.errorColor);
           bus.$emit("end:spinner");
@@ -255,33 +244,14 @@ export default {
         if (data.type === "list") {
           try {
             bus.$emit("start:spinner");
-            await this.$store.dispatch("common/NOTICE_DEL", this.boardNoticeSid);
-            const res = this.noticeDelResult.nextmApiResult;
+            await this.$store.dispatch("common/ONEONONE_DEL", this.boardOneononeSid);
+            const res = this.oneononeDelResult.nextmApiResult;
             if (parseInt(res.errorCode) !== 200) {
               this.alim(res.errorMessage, this.errorColor);
               return false;
             }
 
-            await this.$router.push("/homepage/board/notice/list");
-          } catch (error) {
-            this.alim(error, this.errorColor);
-          } finally {
-            bus.$emit("end:spinner");
-          }
-        }
-
-        if (data.type === "file") {
-          try {
-            bus.$emit("start:spinner");
-            await this.$store.dispatch("common/FILE_DELETE", this.delId);
-            const res = this.fileDeleteResult.nextmApiResult;
-            if (parseInt(res.errorCode) !== 200) {
-              this.alim(res.errorMessage, this.errorColor);
-              return false;
-            }
-
-            this.alim("삭제 되었습니다.", this.successColor);
-            await this.reload();
+            await this.$router.push("/homepage/board/oneonone/list");
           } catch (error) {
             this.alim(error, this.errorColor);
           } finally {

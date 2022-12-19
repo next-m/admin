@@ -134,7 +134,7 @@
                 <tbody>
                   <tr v-for="(item, idx) in seedHistory" :key="idx" @click="seedDetail(item.homepageUserSeedSid)">
                     <td>{{ item.homepageUserSeedSid }}</td>
-                    <td>{{ item.homepageUserSeedDateTime }}</td>
+                    <td>{{ __getLocalTime(item.homepageUserSeedDateTime) }}</td>
                     <td>{{ item.homepageUserSeedKindName }}</td>
                     <td>{{ item.homepageUserSeedComment }}</td>
                     <td>{{ item.homepageUserSeedPrice }}</td>
@@ -162,9 +162,10 @@ import bus from "@/utils/bus";
 import alimMixin from "@/mixins/alim.js";
 import deleteMixin from "@/mixins/delete.js";
 import responseMixin from "@/mixins/response";
+import utcMixin from "@/mixins/utcTime.js";
 export default {
   components: { alim, confirm, PullDown },
-  mixins: [loading, alimMixin, deleteMixin, responseMixin],
+  mixins: [loading, alimMixin, deleteMixin, responseMixin,utcMixin],
   props: ["size"],
   data() {
     return {

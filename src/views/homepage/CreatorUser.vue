@@ -18,12 +18,12 @@
                 사용자 리스트 테이블
               </caption>
               <colgroup>
-                <col width="150" />
+                <col width="80" />
                 <col width="*" />
                 <col width="160" />
                 <col width="100" />
                 <col width="100" />
-                <col width="100" />
+                <col width="150" />
               </colgroup>
               <thead>
                 <tr>
@@ -413,7 +413,7 @@
     display: flex;
     justify-content: space-between;
     & .member-list {
-      width: 50% !important;
+      width: 70% !important;
       border: 1px solid #ccc;
       & .border {
         padding: 20px;
@@ -421,7 +421,7 @@
       }
     }
     & .section-box {
-      width: calc(50% - 20px);
+      width: calc(70% - 20px);
       & .border {
         & .field {
           & .required {

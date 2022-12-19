@@ -21,7 +21,7 @@
                 <td>작성일</td>
                 <td>{{ __getLocalTime(created_at) }}</td>
                 <td>수정일</td>
-                <td>{{ __getLocalTime(updated_at) }}</td>
+                <td>{{__getLocalTime(updated_at) }}</td>
               </tr>
               <tr>
                 <td>상단공지</td>
@@ -84,10 +84,11 @@ import alimMixin from "@/mixins/alim.js";
 import deleteMixin from "@/mixins/delete.js";
 import responseMixin from "@/mixins/response";
 import utcTimeMixin from "@/mixins/utcTime";
+import utcMixin from "@/mixins/utcTime.js";
 import bus from "@/utils/bus";
 export default {
   components: { alim, confirm },
-  mixins: [loading, alimMixin, deleteMixin, responseMixin, utcTimeMixin],
+  mixins: [loading, alimMixin, deleteMixin, responseMixin, utcTimeMixin,utcMixin],
   data() {
     return {
       modify: false,

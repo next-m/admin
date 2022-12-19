@@ -52,6 +52,47 @@ function noticeWrite(data) {
   return createInstanceWithAuth("/notice", frm, {}, "multipart/form-data").post();
 }
 
+function getOneononeList(data) {
+  let param = {
+    size: data.size,
+    page: data.page,
+    searchText: data.searchText,
+  };
+  return createInstanceWithAuth("/oneonone/list", {}, param, "application/json; charset=utf-8").get();
+}
+function getOneononeDetail(id) {
+  return createInstanceWithAuth(`/oneonone/${id}`, {}, {}, "application/json; charset=utf-8").get();
+}
+function oneononeDel(id) {
+  return createInstanceWithAuth(`/oneonone/${id}`, {}, {}, "application/json; charset=utf-8").delete();
+}
+function oneononeModify(data) {
+  var frm = new FormData();
+  frm.append("boardOneononeTopFlag", data.boardOneononeTopFlag);
+  frm.append("boardOneononeTitle", data.boardOneononeTitle);
+  frm.append("boardOneononeContent", data.boardOneononeContent);
+  frm.append("boardOneononeAnswer", data.boardOneononeAnswer);  
+  frm.append("boardOneononeCreateName", data.boardOneononeCreateName);
+  frm.append("boardOneononeGroupNo", data.boardOneononeGroupNo);
+  frm.append("boardOneononeGroupSort", data.boardOneononeGroupSort);
+  frm.append("boardOneononeGroupDepth", data.boardOneononeGroupDepth);
+  frm.append("mailSendFlag", data.mailSendFlag);
+  return createInstanceWithAuth(`/oneonone/${data.boardOneononeSid}`, frm, {}, "multipart/form-data").post();
+}
+function oneononeWrite(data) {
+  var frm = new FormData();
+  frm.append("boardOneononeTopFlag", data.boardOneononeTopFlag);
+  frm.append("boardOneononeTitle", data.boardOneononeTitle);
+  frm.append("boardOneononeContent", data.boardOneononeContent);
+  frm.append("boardOneononeAnswer", data.boardOneononeAnswer);
+  frm.append("boardOneononeCreateName", data.boardOneononeCreateName);
+  frm.append("boardOneononeGroupNo", data.boardOneononeGroupNo);
+  frm.append("boardOneononeGroupSort", data.boardOneononeGroupSort);
+  frm.append("boardOneononeGroupDepth", data.boardOneononeGroupDepth);
+  return createInstanceWithAuth("/oneonone", frm, {}, "multipart/form-data").post();
+}
+
+
 function getFaqList(data) {
   let param = {
     size: data.size,
@@ -218,6 +259,13 @@ export {
   noticeDel,
   noticeModify,
   noticeWrite,
+
+  getOneononeList,
+  getOneononeDetail,
+  oneononeDel,
+  oneononeModify,
+  oneononeWrite,
+
   getFaqList,
   getFaqDetail,
   faqModify,
