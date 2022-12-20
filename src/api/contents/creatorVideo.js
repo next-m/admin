@@ -10,8 +10,8 @@ async function getCreatorVideoList(data) {
   };
   return createInstanceWithAuth('/creatorVideo/list', {}, param, 'application/json; charset=utf-8').get();
 }
-async function creatorVideoDetail(data) {
-  return createInstanceWithAuth(`/api/v1/creatorVideo/${data.creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').get();
+async function creatorVideoDetail(creatorVideoSid) {
+  return createInstanceWithAuth(`/creatorVideo/${creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').get();
 }
 async function creatorVideoInsert(data) {
   var frm = new FormData();
@@ -25,6 +25,7 @@ async function creatorVideoInsert(data) {
       frm.append('nextmFiles1[]', row);
     });
   }
+  frm.append('homepageUserSid', data.homepageUserSid);
   frm.append('creatorVideoTitle', data.creatorVideoTitle);
   frm.append('creatorVideoYoutubeUrl', data.creatorVideoYoutubeUrl);
   frm.append('creatorVideoCategory', data.creatorVideoCategory);
@@ -32,7 +33,7 @@ async function creatorVideoInsert(data) {
   frm.append('creatorVideoDoc', data.creatorVideoDoc);
   frm.append('creatorVideoDate', data.creatorVideoDate);
 
-  return createInstanceWithAuth('/api/v1/creatorVideo', frm, {}, 'application/json; charset=utf-8').post();
+  return createInstanceWithAuth('/creatorVideo', frm, {}, 'application/json; charset=utf-8').post();
 }
 async function creatorVideoUpdate(data) {
   var frm = new FormData();
@@ -53,10 +54,10 @@ async function creatorVideoUpdate(data) {
   frm.append('creatorVideoDoc', data.creatorVideoDoc);
   frm.append('creatorVideoDate', data.creatorVideoDate);
 
-  return createInstanceWithAuth(`/api/v1/creatorVideo/${data.creatorVideoSid}`, frm, {}, 'application/json; charset=utf-8').post();
+  return createInstanceWithAuth(`/creatorVideo/${data.creatorVideoSid}`, frm, {}, 'application/json; charset=utf-8').post();
 }
 async function creatorVideoDelete(creatorVideoSid) {
-  return createInstanceWithAuth(`/api/v1/creatorVideo/${creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').delete();
+  return createInstanceWithAuth(`/creatorVideo/${creatorVideoSid}`, {}, {}, 'application/json; charset=utf-8').delete();
 }
 async function youtubeSearch(data) {
   return createInstanceWithAuth(`/youtube/${data.youtubeId}`, {}, {}, 'application/json; charset=utf-8').get();

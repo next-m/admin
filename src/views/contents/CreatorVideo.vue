@@ -12,7 +12,7 @@
               <div class="btn-group">
                 <v-btn small color="primary" dark @click="validate('reg')">등록</v-btn>
                 <v-btn small color="warning" dark @click="validate('modify')">수정</v-btn>
-                <v-btn small color="error" dark @click="confirm(homepageUserCreatorSid)">삭제</v-btn>
+                <v-btn small color="error" dark @click="confirm(homepageUserSid)">삭제</v-btn>
                 <v-btn small @click="clear">clear</v-btn>
               </div>
             </div>
@@ -43,7 +43,7 @@
                   </tr>
                   <tr>
                     <td>영상 카태고리</td>
-                    <pull-down :data="creatorVideoCategory" :code="creatorVideoCategoryCode" @selected="creatorVideoCategoryProp" class="pull-down"></pull-down>
+                    <pull-down-multi ref="pullDownMulti" :data="creatorVideoCategory" :code=creatorVideoCategoryCode @selected="creatorVideoCategoryProp" class="pull-down multi" :onlySelectPullDown="true"></pull-down-multi>
                   </tr>
                   <tr>
                     <td>영상길이(초)</td>
@@ -95,19 +95,7 @@
                   <td>세로 이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
-                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
-                      <ul class="thumbnail mt10">
-                        <li v-for="(item, index) in file" :key="index">
-                          <v-icon @click="confirmPhoto(item.url)">mdi-close-circle</v-icon>
-                          <div v-if="message === false" class="thubmnail-type" :class="{ 'pdf-bg': item.fileExt === 'pdf' }">
-                            <img
-                              :src="`${url}/file/fileView/${item.url}?size=80`"
-                              @click="thumbnailModal({ id: item.url, fileExt: item.fileExt, name: item.name })"
-                            />
-                          </div>
-                        </li>
-                        <div v-if="message === true">첨부된 파일이 없습니다.</div>
-                      </ul>
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles1" :fileType="'image/*'"></file-upload>
                     </div>
                   </td>
                 </tr>
@@ -123,8 +111,8 @@
           <div class="border youtube">
             <label>유튜브 영상</label>
             <div>
-              <iframe id="player" type="text/html" width="100%" height="260"
-              src="http://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1&origin=http://example.com"
+              <iframe id="player" type="text/html" width="100%" height="400"
+              :src="youtubeIframeSrc"
               frameborder="0"></iframe>
             </div>
             <div class="cretorVideoImage">
@@ -151,6 +139,7 @@
   import loading from "@/mixins/loading";
   import bus from "@/utils/bus";
   import PullDown from "@/components/form/PullDown.vue";
+  import PullDownMulti from "@/components/form/PullDownMulti.vue";
   import alimMixin from "@/mixins/alim.js";
   import resMixin from "@/mixins/response.js";
   import deleteMixin from "@/mixins/delete.js";
@@ -159,7 +148,7 @@
   import thumbnailModal from "@/components/modal/common/Thumbnail";
   import { formatDate } from "@/utils/filters";
   export default {
-    components: { alim, confirm,PullDown,FileUpload },
+    components: { alim, confirm,PullDown,PullDownMulti,FileUpload },
     mixins: [loading, alimMixin, deleteMixin,fileUploadMixin, resMixin],
     props: ["size"],
     data() {
@@ -171,10 +160,10 @@
         list: [],
         message: true,
         file: [],
+        file1: [],
 
         //디테일 데이터
         creatorVideoSid: "",
-        creatorVideoSid:"",
         homepageUserSid:"",
         creatorVideoTitle:"",
         creatorVideoYoutubeUrl:"",
@@ -183,8 +172,10 @@
         creatorVideoDoc:"",
         homepageUserSidName:"",
         creatorVideoStatus:"",
-        creatorVideoCategory:"",
-        nextmFiles: [],  
+        creatorVideoCategory:[],
+        youtubeIframeSrc:"",
+        nextm1Files: [],  
+        nextm2Files: [],  
         creatorVideoStatusCode: "SYS22B01B002",      
         creatorVideoCategoryCode: "SYS22A17B017",              
         url: process.env.VUE_APP_API,
@@ -192,11 +183,15 @@
     },
     computed: {
       ...mapGetters("creatorUser", ["getCreatorUserList", "getCreatorUserDetail", "creatorUserAdd", "creatorUserDeleteResult"]),
-      ...mapGetters("creatorVideo", ["getYoutubeResult,getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd", "creatorVideoDeleteResult"]),      
+      ...mapGetters("creatorVideo", ["getYoutubeInfo","getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd", "creatorVideoDeleteResult"]),      
       ...mapGetters("common", ["fileDeleteResult"]),
     },
     mounted() {
      // this.userDetail();
+     if(this.$route.params.creatorVideoSid){
+      this.creatorVideoSid = this.$route.params.creatorVideoSid;
+      this.creatorVideoDetail(this.creatorVideoSid);
+     }
     },
     methods: {
       creatorVideoCategoryProp(data) {
@@ -216,52 +211,58 @@
         let youtubeId = this.creatorVideoYoutubeUrl.split('/').slice(-1)[0];
         const youtubeData = {youtubeId: youtubeId};
         await this.$store.dispatch('creatorVideo/GET_YOUTUBE_INFO', youtubeData);
-        console.log(this.getYoutubeResult);
-        // if (this.getYoutubeInfo.nextmApiResult.errorCode == 200) {
-        //   let video = this.getYoutubeInfo.nextmApiResult.youtube.video;
-
-        //   this.creatorVideoTitle = video.snippet.title;
-        //   this.creatorVideoLangs = video.contentDetails.videoTimeSec;
-        //   this.creatorVideoDoc = video.snippet.description;
-        // } else {
-        //   this.$notify({
-        //     group: 'notifyMessage',
-        //     text: this.getYoutubeInfo.nextmApiResult.errorMessage,
-        //   });
-        // }
+        if (this.getYoutubeInfo.nextmApiResult.errorCode == 200) {
+          let video = this.getYoutubeInfo.nextmApiResult.youtube.video;
+          this.youtubeIframeSrc = `https://www.youtube.com/embed/${video.id}`;
+          this.creatorVideoTitle = video.snippet.title;
+          this.creatorVideoLangs = video.contentDetails.videoTimeSec;
+          this.creatorVideoDoc = video.snippet.description;
+        } else {
+          this.$notify({
+            group: 'notifyMessage',
+            text: this.getYoutubeInfo.nextmApiResult.errorMessage,
+          });
+        }
       },
 
-      //유저 상세 정보
-      async userDetail(id) {
+      //상세 정보
+      async creatorVideoDetail(id) {
         try {
           bus.$emit("start:spinner");
           await this.$store.dispatch("creatorVideo/GET_CREATORVIDEO_DETAIL",id);
-          if (this.getCreatorUserDetail.nextmApiResult.errorCode === 200) {
-            const userDetail = this.getCreatorUserDetail.nextmApiResult.homepageUserCreator;
+          if (this.getCreatorVideoDetail.nextmApiResult.errorCode === 200) {
+            const creatorVideoDetail = this.getCreatorVideoDetail.nextmApiResult.creatorVideo;
+            //console.log(creatorVideoDetail);
+            this.homepageUserSid = creatorVideoDetail.homepageUserSid;
+            this.creatorVideoTitle = creatorVideoDetail.creatorVideoTitle;
+            this.creatorVideoYoutubeUrl = creatorVideoDetail.creatorVideoYoutubeUrl;
+            this.creatorVideoLangs = creatorVideoDetail.creatorVideoLangs;
+            this.creatorVideoDate = creatorVideoDetail.creatorVideoDate;
+            this.creatorVideoDoc = creatorVideoDetail.creatorVideoDoc;
+            this.creatorVideoStatus = creatorVideoDetail.creatorVideoStatus;
 
-            this.homepageUserCreatorSid = userDetail.homepageUserCreatorSid;
-            this.homepageUserName = userDetail.homepageUserName;
-            this.homepageUserEmail = userDetail.homepageUserEmail;
-            this.homepageUserCreatorChurch = userDetail.homepageUserCreatorChurch;
-            this.homepageUserCreatorChurchPlatform = userDetail.homepageUserCreatorChurchPlatform;
-            this.homepageUserCreatorChurchPosition = userDetail.homepageUserCreatorChurchPosition;
-            this.homepageUserCreatorYoutubeChannel = userDetail.homepageUserCreatorYoutubeChannel;
-            this.homepageUserCreatorYoutubeUrl = userDetail.homepageUserCreatorYoutubeUrl;
-            this.homepageUserCreatorStatus = userDetail.homepageUserCreatorStatus;
-            this.homepageUserCreatorStatusName = userDetail.homepageUserCreatorStatusName;
-  
-            this.file = [];
-            userDetail.file_result.forEach(row => {
-              if (row.fileSid !== "") {
-                //pdf 업로드 가능시 보내야할 데이터
-                this.file.push({ url: row.fileSid, fileExt: row.fileExt, name: row.fileFileName });
+            
+            creatorVideoDetail.category_result.forEach(row => {
+              console.log(row);
+              if (row.creatorVideoCategorySid !== "") {
+                this.creatorVideoCategory.push(row.creatorVideoCategorySid);
               }
+              console.log(this.creatorVideoCategory);
             });
-            if (this.file[0] === undefined) {
-              this.message = true;
-            } else {
-              this.message = false;
-            }
+
+            // });
+            // this.file = [];
+            // userDetail.file_result.forEach(row => {
+            //   if (row.fileSid !== "") {
+            //     //pdf 업로드 가능시 보내야할 데이터
+            //     this.file.push({ url: row.fileSid, fileExt: row.fileExt, name: row.fileFileName });
+            //   }
+            // });
+            // if (this.file[0] === undefined) {
+            //   this.message = true;
+            // } else {
+            //   this.message = false;
+            // }
   
           } else {
             this.alim(this.getCreatorUserDetail.nextmApiResult.errorMessage, this.errorColor);
@@ -281,20 +282,22 @@
       async reg() {
         try {
           bus.$emit("start:spinner");
+          console.log(this.creatorVideoCategory);          
           await this.$store.dispatch("creatorVideo/CREATORVIDEO_ADD", {
             homepageUserSid:this.homepageUserSid,
             creatorVideoTitle:this.creatorVideoTitle,
+            creatorVideoCategory:this.creatorVideoCategory.split(","),
             creatorVideoYoutubeUrl:this.creatorVideoYoutubeUrl,
             creatorVideoLangs:this.creatorVideoLangs,
             creatorVideoDate:this.creatorVideoDate,
             creatorVideoDoc:this.creatorVideoDoc,
             creatorVideoStatus:this.creatorVideoStatus,
             
-            nextmFiles: this.nextmFiles,                                                                      
+            nextm1Files: this.nextm1Files,                                                                      
+            nextm2Files: this.nextm2Files,                                                                                  
           });
           if (this.creatorVideoAdd.nextmApiResult.errorCode == 200) {
             this.alim("관리자가 추가 되었습니다.", this.successColor);
-            this.reload(0);
           } else {
             this.alim(this.creatorVideoAdd.nextmApiResult.errorMessage, this.errorColor);
           }
@@ -307,7 +310,7 @@
       //등록 validate
       validate(status) {
         if (status === "reg") {
-          if (this.homepageUserCreatorSid == "") {
+          if (this.homepageUserSid == "") {
             this.alim("사용자 고유코드를 입력해 주세요.", this.errorColor);
             return false;
           }
@@ -325,7 +328,7 @@
           bus.$emit("start:spinner");
           console.log( this.homepageUserCreatorStatus);
           const res = await this.__getResponse("creatorVideo/CREATORVIDEO_MODIFY", {
-            homepageUserCreatorSid : this.homepageUserCreatorSid,
+            homepageUserSid : this.homepageUserSid,
             homepageUserName : this.homepageUserName,
             homepageUserEmail : this.homepageUserEmail,
             homepageUserCreatorChurch : this.homepageUserCreatorChurch,
@@ -349,7 +352,7 @@
           if (data.type === "list") {
             try {
               bus.$emit("start:spinner");
-              await this.$store.dispatch("creatorVideo/CREATORVIDEO_DELETE", this.homepageUserCreatorSid);
+              await this.$store.dispatch("creatorVideo/CREATORVIDEO_DELETE", this.homepageUserSid);
               if (this.creatorVideoDeleteResult.nextmApiResult.errorCode === 200) {
                 this.reload(0);
                 if (this.list.length < 1) {
@@ -372,7 +375,7 @@
       clear() {
         const select = document.querySelectorAll(".select-tbl tr");
         select.forEach(ele => ele.classList.remove("active"));
-        this.homepageUserCreatorSid='';
+        this.homepageUserSid='';
         this.homepageUserName='';                
         this.homepageUserEmail='';
         this.homepageUserCreatorChurch = "";
