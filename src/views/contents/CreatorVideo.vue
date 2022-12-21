@@ -43,7 +43,8 @@
                   </tr>
                   <tr>
                     <td>영상 카태고리</td>
-                    <pull-down-multi ref="pullDownMulti" :data="creatorVideoCategory" :code=creatorVideoCategoryCode @selected="creatorVideoCategoryProp" class="pull-down multi" :onlySelectPullDown="true"></pull-down-multi>
+                    <!--pull-down-multi ref="pullDownMulti" :data="creatorVideoCategory" :code=creatorVideoCategoryCode @selected="creatorVideoCategoryProp" class="pull-down multi" :onlySelectPullDown="true"></pull-down-multi-->
+                    <v-select v-model="creatorVideoCategory" :items="creatorVideoCategoryList" item-text="categoryName" item-value="categoryCode" attach chips label="영상 카태고리" multiple></v-select>
                   </tr>
                   <tr>
                     <td>영상길이(초)</td>
@@ -172,7 +173,8 @@
         creatorVideoDoc:"",
         homepageUserSidName:"",
         creatorVideoStatus:"",
-        creatorVideoCategory:[],
+        creatorVideoCategoryList: [],
+        creatorVideoCategory: [],
         youtubeIframeSrc:"",
         nextm1Files: [],  
         nextm2Files: [],  
@@ -233,23 +235,25 @@
           if (this.getCreatorVideoDetail.nextmApiResult.errorCode === 200) {
             const creatorVideoDetail = this.getCreatorVideoDetail.nextmApiResult.creatorVideo;
             //console.log(creatorVideoDetail);
+            let youtubeId = creatorVideoDetail.creatorVideoYoutubeUrl.split('/').slice(-1)[0];            
             this.homepageUserSid = creatorVideoDetail.homepageUserSid;
             this.creatorVideoTitle = creatorVideoDetail.creatorVideoTitle;
             this.creatorVideoYoutubeUrl = creatorVideoDetail.creatorVideoYoutubeUrl;
+            this.youtubeIframeSrc = `https://www.youtube.com/embed/${youtubeId}`;
             this.creatorVideoLangs = creatorVideoDetail.creatorVideoLangs;
             this.creatorVideoDate = creatorVideoDetail.creatorVideoDate;
             this.creatorVideoDoc = creatorVideoDetail.creatorVideoDoc;
             this.creatorVideoStatus = creatorVideoDetail.creatorVideoStatus;
 
-            
-            creatorVideoDetail.category_result.forEach(row => {
-              console.log(row);
-              if (row.creatorVideoCategorySid !== "") {
-                this.creatorVideoCategory.push(row.creatorVideoCategorySid);
-              }
-              console.log(this.creatorVideoCategory);
-            });
+  //          this.creatorVideoCategory = creatorVideoDetail.category_result.map(item => item.creatorVideoCategorySid);
 
+            // let category = [];
+            // creatorVideoDetail.category_result.forEach(item => {
+            //   category.push(item.creatorVideoCategorySid);
+            // });
+           // this.creatorVideoCategory = category.split(",");
+
+            
             // });
             // this.file = [];
             // userDetail.file_result.forEach(row => {

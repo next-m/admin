@@ -45,7 +45,7 @@
               <tr v-for="(item, index) in list" :key="index" @click="creatorVideoDetail(item.creatorVideoSid)">
                 <td>{{ item.creatorVideoSid }}</td>
                 
-                <td><img :src='`https://api.next-m.kr/api/h1/file/fileView/${item?.video_horizontal_image?.fileSid}?size=100`' /></td>
+                <td><img :src='`https://api.next-m.kr/api/h1/file/fileView/${item.video_horizontal_image.fileSid}?size=100`' /></td>
                 <td class="left">{{ item.creatorVideoTitle }}</td>
                 <td>{{ item.homepageUserSid }}</td>
                 <td>{{ item.homepage_user_creator.homepageUserCreatorChannelName }}</td>
