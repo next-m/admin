@@ -67,7 +67,9 @@ const contact = {
       commit("creatorVideoDeleteResult", data);
     },
     async CREATORVIDEO_ADD({ commit }, datas) {
+      console.log(datas);
       const { data } = await creatorVideoInsert(datas);
+      console.log(22);
       commit("creatorVideoAdd", data);
     },
     async CREATORVIDEO_MODIFY({ commit }, datas) {

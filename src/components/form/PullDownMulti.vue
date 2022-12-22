@@ -35,10 +35,19 @@ export default {
   },
   watch: {
     codeReload() {
+      console.log(222);
       this.reload();
     },
     code() {
+      console.log(111);
       this.reload();
+    },
+    data(val){
+      if (val == null) {
+        this.select = "";
+      } else {
+        this.select = val;
+      }
     },
     //초기화
     clear(o, n) {
@@ -61,7 +70,7 @@ export default {
           });
         });
       }
-      this.$emit("selected", selectCodeList);
+//      this.$emit("selected", selectCodeList);
     },
   },
   mounted() {
@@ -109,7 +118,10 @@ export default {
           this.alim(error, this.errorColor);
         }
       }
-      this.select = this.data.split(",");
+
+      if(this.data.length){     
+        this.select = this.data.split(",");
+      }  
     },
   },
 };

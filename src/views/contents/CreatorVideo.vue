@@ -43,8 +43,7 @@
                   </tr>
                   <tr>
                     <td>영상 카태고리</td>
-                    <!--pull-down-multi ref="pullDownMulti" :data="creatorVideoCategory" :code=creatorVideoCategoryCode @selected="creatorVideoCategoryProp" class="pull-down multi" :onlySelectPullDown="true"></pull-down-multi-->
-                    <v-select v-model="creatorVideoCategory" :items="creatorVideoCategoryList" item-text="categoryName" item-value="categoryCode" attach chips label="영상 카태고리" multiple></v-select>
+                    <pull-down-multi ref="pullDownMulti" :data="creatorVideoCategory" :code=creatorVideoCategoryCode @selected="creatorVideoCategoryProp" class="pull-down multi" :onlySelectPullDown="true"></pull-down-multi>
                   </tr>
                   <tr>
                     <td>영상길이(초)</td>
@@ -76,19 +75,7 @@
                   <td>가로이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
-                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles" :fileType="'image/*'"></file-upload>
-                      <ul class="thumbnail mt10">
-                        <li v-for="(item, index) in file" :key="index">
-                          <v-icon @click="confirmPhoto(item.url)">mdi-close-circle</v-icon>
-                          <div v-if="message === false" class="thubmnail-type" :class="{ 'pdf-bg': item.fileExt === 'pdf' }">
-                            <img
-                              :src="`${url}/file/fileView/${item.url}?size=80`"
-                              @click="thumbnailModal({ id: item.url, fileExt: item.fileExt, name: item.name })"
-                            />
-                          </div>
-                        </li>
-                        <div v-if="message === true">첨부된 파일이 없습니다.</div>
-                      </ul>
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="nextm1Files" :fileType="'image/*'"></file-upload>
                     </div>
                   </td>
                 </tr>
@@ -96,7 +83,7 @@
                   <td>세로 이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
-                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles1" :fileType="'image/*'"></file-upload>
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="nextm2Files" :fileType="'image/*'"></file-upload>
                     </div>
                   </td>
                 </tr>
@@ -119,11 +106,39 @@
             <div class="cretorVideoImage">
               <div class="imageItem">
                 <label for="">가로이미지</label>
-                <div class="imageZone"></div>
+                <div class="imageZone">
+                      <ul class="thumbnail">
+                        <li v-for="(item, index) in file1" :key="index">
+                          <v-icon @click="confirmPhoto(item.url)">mdi-close-circle</v-icon>
+                          <div v-if="message1 === false" class="thubmnail-type" :class="{ 'pdf-bg': item.fileExt === 'pdf' }">
+                            <img
+                              :src="`${url}/file/fileView/${item.url}?size=300`"
+                              @click="thumbnailModal({ id: item.url, fileExt: item.fileExt, name: item.name })"
+                            />
+                          </div>
+                        </li>
+                        <div v-if="message1 === true">첨부된 파일이 없습니다.</div>
+                      </ul>
+
+                </div>
               </div>
               <div class="imageItem">
                 <label for="">세로이미지</label>
-                <div class="imageZone"></div>
+                <div class="imageZone">
+                  <ul class="thumbnail">
+                        <li v-for="(item, index) in file2" :key="index">
+                          <v-icon @click="confirmPhoto(item.url)">mdi-close-circle</v-icon>
+                          <div v-if="message2 === false" class="thubmnail-type" :class="{ 'pdf-bg': item.fileExt === 'pdf' }">
+                            <img
+                              :src="`${url}/file/fileView/${item.url}?size=300`"
+                              @click="thumbnailModal({ id: item.url, fileExt: item.fileExt, name: item.name })"
+                            />
+                          </div>
+                        </li>
+                        <div v-if="message2 === true">첨부된 파일이 없습니다.</div>
+                      </ul>
+
+                </div>
               </div>
             </div>
           </div>
@@ -159,9 +174,10 @@
         searchText: "",
         len: null,
         list: [],
-        message: true,
-        file: [],
+        message1: true,
+        message2: true,
         file1: [],
+        file2: [],
 
         //디테일 데이터
         creatorVideoSid: "",
@@ -173,7 +189,6 @@
         creatorVideoDoc:"",
         homepageUserSidName:"",
         creatorVideoStatus:"",
-        creatorVideoCategoryList: [],
         creatorVideoCategory: [],
         youtubeIframeSrc:"",
         nextm1Files: [],  
@@ -184,25 +199,26 @@
       };
     },
     computed: {
-      ...mapGetters("creatorUser", ["getCreatorUserList", "getCreatorUserDetail", "creatorUserAdd", "creatorUserDeleteResult"]),
       ...mapGetters("creatorVideo", ["getYoutubeInfo","getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd", "creatorVideoDeleteResult"]),      
       ...mapGetters("common", ["fileDeleteResult"]),
     },
     mounted() {
-     // this.userDetail();
      if(this.$route.params.creatorVideoSid){
       this.creatorVideoSid = this.$route.params.creatorVideoSid;
       this.creatorVideoDetail(this.creatorVideoSid);
+     }else{
+      this.clear();
      }
     },
     methods: {
       creatorVideoCategoryProp(data) {
-        this.creatorVideoCategory = data.sysCodeSid;
-        this.creatorVideoCategoryName = data.sysCodeName;
+        this.creatorVideoCategory = data.map(item => item.sysCodeSid);
+//        this.creatorVideoCategory = data.sysCodeSid;
+//        this.creatorVideoCategoryName = data.sysCodeName;
       },    
       creatorVideoStatusProp(data) {
         this.creatorVideoStatus = data.sysCodeSid;
-        this.creatorVideoStatusName = data.sysCodeName;
+//        this.creatorVideoStatusName = data.sysCodeName;
       },          
       //youtube 정보 가지고 오기
       async youtubeSearch() {
@@ -219,6 +235,7 @@
           this.creatorVideoTitle = video.snippet.title;
           this.creatorVideoLangs = video.contentDetails.videoTimeSec;
           this.creatorVideoDoc = video.snippet.description;
+          console.log(video);
         } else {
           this.$notify({
             group: 'notifyMessage',
@@ -237,6 +254,8 @@
             //console.log(creatorVideoDetail);
             let youtubeId = creatorVideoDetail.creatorVideoYoutubeUrl.split('/').slice(-1)[0];            
             this.homepageUserSid = creatorVideoDetail.homepageUserSid;
+            this.homepageUserSid = creatorVideoDetail.homepageUserSid;
+            this.homepageUserSidName = creatorVideoDetail.homepage_user_creator.homepageUserCreatorChannelName;
             this.creatorVideoTitle = creatorVideoDetail.creatorVideoTitle;
             this.creatorVideoYoutubeUrl = creatorVideoDetail.creatorVideoYoutubeUrl;
             this.youtubeIframeSrc = `https://www.youtube.com/embed/${youtubeId}`;
@@ -244,29 +263,30 @@
             this.creatorVideoDate = creatorVideoDetail.creatorVideoDate;
             this.creatorVideoDoc = creatorVideoDetail.creatorVideoDoc;
             this.creatorVideoStatus = creatorVideoDetail.creatorVideoStatus;
+            this.creatorVideoCategory = creatorVideoDetail.category_result.map(item => item.creatorVideoCategorySid);
 
-  //          this.creatorVideoCategory = creatorVideoDetail.category_result.map(item => item.creatorVideoCategorySid);
-
-            // let category = [];
-            // creatorVideoDetail.category_result.forEach(item => {
-            //   category.push(item.creatorVideoCategorySid);
-            // });
-           // this.creatorVideoCategory = category.split(",");
-
-            
-            // });
-            // this.file = [];
-            // userDetail.file_result.forEach(row => {
-            //   if (row.fileSid !== "") {
-            //     //pdf 업로드 가능시 보내야할 데이터
-            //     this.file.push({ url: row.fileSid, fileExt: row.fileExt, name: row.fileFileName });
-            //   }
-            // });
-            // if (this.file[0] === undefined) {
-            //   this.message = true;
-            // } else {
-            //   this.message = false;
-            // }
+            this.file1 = [];
+            this.file2 = [];
+            creatorVideoDetail.file_result.forEach(row => {
+              if (row.fileSid !== "") {
+                if(row.fileKind=="SYS22B01B001"){
+                  this.file1.push({ url: row.fileSid, fileExt: row.fileExt, name: row.fileFileName });
+                }
+                if(row.fileKind=="SYS22B07B001"){
+                  this.file2.push({ url: row.fileSid, fileExt: row.fileExt, name: row.fileFileName });                  
+                }                  
+              }
+            });
+            if (this.file1[0] === undefined) {
+              this.message1 = true;
+            } else {
+              this.message1 = false;
+            }
+            if (this.file2[0] === undefined) {
+              this.message2 = true;
+            } else {
+              this.message2 = false;
+            }
   
           } else {
             this.alim(this.getCreatorUserDetail.nextmApiResult.errorMessage, this.errorColor);
@@ -301,7 +321,7 @@
             nextm2Files: this.nextm2Files,                                                                                  
           });
           if (this.creatorVideoAdd.nextmApiResult.errorCode == 200) {
-            this.alim("관리자가 추가 되었습니다.", this.successColor);
+            this.alim("영상이 추가 되었습니다.", this.successColor);
           } else {
             this.alim(this.creatorVideoAdd.nextmApiResult.errorMessage, this.errorColor);
           }
@@ -379,20 +399,34 @@
       clear() {
         const select = document.querySelectorAll(".select-tbl tr");
         select.forEach(ele => ele.classList.remove("active"));
-        this.homepageUserSid='';
-        this.homepageUserName='';                
-        this.homepageUserEmail='';
-        this.homepageUserCreatorChurch = "";
-        this.homepageUserCreatorChurchPlatform = "";
-        this.homepageUserCreatorChurchPosition = "";
-        this.homepageUserCreatorYoutubeChannel = "";
-        this.homepageUserCreatorYoutubeUrl = "";
+        this.creatorVideoSid ='';
+        this.homepageUserSid ='';
+        this.homepageUserSid ='';
+        this.homepageUserSidName ='';
+        this.creatorVideoTitle ='';
+        this.creatorVideoYoutubeUrl ='';
+        this.youtubeIframeSrc ='';
+        this.creatorVideoLangs ='';
+        this.creatorVideoDate ='';
+        this.creatorVideoDoc ='';
+        this.creatorVideoStatus ='';
+        this.creatorVideoCategory =[];
+        this.file1=[];
+        this.file2=[];
       },
     },
   };
   </script>
   
   <style lang="scss" scoped>
+  .thumbnail li .thubmnail-type{
+    width:100% !important;
+    height:auto !important;
+  }
+  .thumbnail li .thubmnail-type img{
+    width:100% !important;
+    height:auto !important;    
+  }
   .user-list-tbl {
     & td {
       cursor: pointer;
