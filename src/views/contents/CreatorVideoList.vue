@@ -13,7 +13,7 @@
               <pull-down :data="searchStatus" :code="searchStatusCode" @selected="searchStatusProp" :includeTotalElem="true" class="pull-down searchSelect"></pull-down>                            
               <input type="text" placeholder="콘텐츠 제목을 입력하세요" v-model="searchText" class="search-input" @keyup.enter="reload(1)" />
               <v-btn small color="primary" dark @click="reload(1)" class="btn-search">조회</v-btn>
-              <v-btn small color="warning" dark @click="reload(1)" class="btn-search">크리에이터 영상 등록</v-btn>              
+              <v-btn small color="warning" dark @click="write" class="btn-search">크리에이터 영상 등록</v-btn>              
             </div>
           </div>
           <table class="tbl mt20 user-list-tbl select-tbl">
@@ -45,7 +45,7 @@
               <tr v-for="(item, index) in list" :key="index" @click="creatorVideoDetail(item.creatorVideoSid)">
                 <td>{{ item.creatorVideoSid }}</td>
                 
-                <td><img :src='`https://api.next-m.kr/api/h1/file/fileView/${item.video_horizontal_image.fileSid}?size=100`' /></td>
+                <td><img :src='`https://api.next-m.kr/api/h1/file/fileView/${item?.video_horizontal_image?.fileSid}?size=100`' /></td>
                 <td class="left">{{ item.creatorVideoTitle }}</td>
                 <td>{{ item.homepageUserSid }}</td>
                 <td>{{ item.homepage_user_creator.homepageUserCreatorChannelName }}</td>
@@ -166,7 +166,11 @@ export default {
     creatorVideoDetail(creatorVideoSid){
       console.log(creatorVideoSid);
       this.$router.push(`/contents/CreatorVideo/${creatorVideoSid}`);
-    }
+    },
+    write() {
+      this.$router.push("/contents/CreatorVideo");
+    },
+
   },
 };
 </script>

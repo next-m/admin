@@ -1,4 +1,4 @@
-import {youtubeSearch,getCreatorVideoList, creatorVideoDetail, creatorVideoInsert, creatorVideoDelete, creatorVideoModify } from "@/api/contents/creatorVideo";
+import {youtubeSearch,getCreatorVideoList, creatorVideoDetail, creatorVideoInsert, creatorVideoDelete, creatorVideoUpdate } from "@/api/contents/creatorVideo";
 const contact = {
   namespaced: true,
   state: {
@@ -67,13 +67,11 @@ const contact = {
       commit("creatorVideoDeleteResult", data);
     },
     async CREATORVIDEO_ADD({ commit }, datas) {
-      console.log(datas);
       const { data } = await creatorVideoInsert(datas);
-      console.log(22);
       commit("creatorVideoAdd", data);
     },
     async CREATORVIDEO_MODIFY({ commit }, datas) {
-      const { data } = await creatorVideoModify(datas);
+      const { data } = await creatorVideoUpdate(datas);
       commit("creatorVideoModify", data);
     },
   },

@@ -32,10 +32,12 @@ async function creatorVideoInsert(data) {
   frm.append('creatorVideoLangs', data.creatorVideoLangs);
   frm.append('creatorVideoDoc', data.creatorVideoDoc);
   frm.append('creatorVideoDate', data.creatorVideoDate);
-
+  frm.append('creatorVideoStatus', data.creatorVideoStatus);
+  
   return createInstanceWithAuth('/creatorVideo', frm, {}, 'application/json; charset=utf-8').post();
 }
 async function creatorVideoUpdate(data) {
+  console.log(data);
   var frm = new FormData();
   if (data.nextm1Files.length > 0) {
     data.nextm1Files.forEach(row => {
@@ -53,6 +55,7 @@ async function creatorVideoUpdate(data) {
   frm.append('creatorVideoLangs', data.creatorVideoLangs);
   frm.append('creatorVideoDoc', data.creatorVideoDoc);
   frm.append('creatorVideoDate', data.creatorVideoDate);
+  frm.append('creatorVideoStatus', data.creatorVideoStatus);  
 
   return createInstanceWithAuth(`/creatorVideo/${data.creatorVideoSid}`, frm, {}, 'application/json; charset=utf-8').post();
 }

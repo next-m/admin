@@ -55,7 +55,9 @@
                   </tr>
                   <tr>
                     <td>등록일</td>
-                    <td><input type="text" v-model="creatorVideoDate" /></td>
+                    <td><input type="text" v-model="creatorVideoDate" />
+                      <!--date-picker :propdate="bannerStartDateTime" @updateDate="newBannerStartDateTime" class="modal-date"></date-picker --> 
+                    </td>
                   </tr>
                   <tr>
                   <td>콘탠츠 상태</td>
@@ -75,7 +77,7 @@
                   <td>가로이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
-                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="nextm1Files" :fileType="'image/*'"></file-upload>
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles1"  :fileType="'image/*'"></file-upload>
                     </div>
                   </td>
                 </tr>
@@ -83,7 +85,7 @@
                   <td>세로 이미지</td>
                   <td class="file-add" colspan="3">
                     <div class="file-wrap">
-                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="nextm2Files" :fileType="'image/*'"></file-upload>
+                      <file-upload :deleteAll="deleteAllFiles" @uploadFiles="uploadFiles2" :fileType="'image/*'"></file-upload>
                     </div>
                   </td>
                 </tr>
@@ -178,6 +180,8 @@
         message2: true,
         file1: [],
         file2: [],
+        // 파일 삭제 아이디
+        delId: "",
 
         //디테일 데이터
         creatorVideoSid: "",
@@ -199,7 +203,7 @@
       };
     },
     computed: {
-      ...mapGetters("creatorVideo", ["getYoutubeInfo","getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd", "creatorVideoDeleteResult"]),      
+      ...mapGetters("creatorVideo", ["getYoutubeInfo","getCreatorVideoList", "getCreatorVideoDetail", "creatorVideoAdd","creatorVideoModify", "creatorVideoDeleteResult"]),      
       ...mapGetters("common", ["fileDeleteResult"]),
     },
     mounted() {
@@ -235,7 +239,6 @@
           this.creatorVideoTitle = video.snippet.title;
           this.creatorVideoLangs = video.contentDetails.videoTimeSec;
           this.creatorVideoDoc = video.snippet.description;
-          console.log(video);
         } else {
           this.$notify({
             group: 'notifyMessage',
@@ -306,11 +309,10 @@
       async reg() {
         try {
           bus.$emit("start:spinner");
-          console.log(this.creatorVideoCategory);          
           await this.$store.dispatch("creatorVideo/CREATORVIDEO_ADD", {
             homepageUserSid:this.homepageUserSid,
             creatorVideoTitle:this.creatorVideoTitle,
-            creatorVideoCategory:this.creatorVideoCategory.split(","),
+            creatorVideoCategory:this.creatorVideoCategory,
             creatorVideoYoutubeUrl:this.creatorVideoYoutubeUrl,
             creatorVideoLangs:this.creatorVideoLangs,
             creatorVideoDate:this.creatorVideoDate,
@@ -321,6 +323,8 @@
             nextm2Files: this.nextm2Files,                                                                                  
           });
           if (this.creatorVideoAdd.nextmApiResult.errorCode == 200) {
+            this.creatorVideoSid = this.creatorVideoAdd.nextmApiResult.creatorVideo.creatorVideoSid;
+            this.creatorVideoDetail(this.creatorVideoSid);
             this.alim("영상이 추가 되었습니다.", this.successColor);
           } else {
             this.alim(this.creatorVideoAdd.nextmApiResult.errorMessage, this.errorColor);
@@ -334,6 +338,10 @@
       //등록 validate
       validate(status) {
         if (status === "reg") {
+          if (this.creatorVideoSid != "") {
+            this.alim("영상 고유코드가 있을 경우 등록할 수 없습니다.", this.errorColor);
+            return false;
+          }          
           if (this.homepageUserSid == "") {
             this.alim("사용자 고유코드를 입력해 주세요.", this.errorColor);
             return false;
@@ -350,20 +358,28 @@
       async modify() {
         try {
           bus.$emit("start:spinner");
-          console.log( this.homepageUserCreatorStatus);
-          const res = await this.__getResponse("creatorVideo/CREATORVIDEO_MODIFY", {
-            homepageUserSid : this.homepageUserSid,
-            homepageUserName : this.homepageUserName,
-            homepageUserEmail : this.homepageUserEmail,
-            homepageUserCreatorChurch : this.homepageUserCreatorChurch,
-            homepageUserCreatorChurchPlatform : this.homepageUserCreatorChurchPlatform,
-            homepageUserCreatorChurchPosition : this.homepageUserCreatorChurchPosition,
-            homepageUserCreatorYoutubeChannel : this.homepageUserCreatorYoutubeChannel,
-            homepageUserCreatorYoutubeUrl : this.homepageUserCreatorYoutubeUrl,
-            homepageUserCreatorStatus : this.homepageUserCreatorStatus,
-            nextmFiles: this.nextmFiles,
+          await this.$store.dispatch("creatorVideo/CREATORVIDEO_MODIFY", {          
+            creatorVideoSid:this.creatorVideoSid,
+            homepageUserSid:this.homepageUserSid,
+            creatorVideoTitle:this.creatorVideoTitle,
+            creatorVideoCategory:this.creatorVideoCategory,
+            creatorVideoYoutubeUrl:this.creatorVideoYoutubeUrl,
+            creatorVideoLangs:this.creatorVideoLangs,
+            creatorVideoDate:this.creatorVideoDate,
+            creatorVideoDoc:this.creatorVideoDoc,
+            creatorVideoStatus:this.creatorVideoStatus,
+            
+            nextm1Files: this.nextm1Files,                                                                      
+            nextm2Files: this.nextm2Files,                                                                                  
+
           });
-          this.__responseCheck(res, this.alim, this.reload);
+          if (this.creatorVideoModify.nextmApiResult.errorCode == 200) {
+            this.creatorVideoDetail(this.creatorVideoSid);
+            this.alim("영상이 수정 되었습니다.", this.successColor);
+          } else {
+            this.alim(this.creatorVideoModify.nextmApiResult.errorMessage, this.errorColor);
+          }
+
         } catch (error) {
           this.alim(error, this.errorColor);
         } finally {
@@ -376,12 +392,9 @@
           if (data.type === "list") {
             try {
               bus.$emit("start:spinner");
-              await this.$store.dispatch("creatorVideo/CREATORVIDEO_DELETE", this.homepageUserSid);
+              await this.$store.dispatch("creatorVideo/CREATORVIDEO_DELETE", this.creatorVideoSid);
               if (this.creatorVideoDeleteResult.nextmApiResult.errorCode === 200) {
-                this.reload(0);
-                if (this.list.length < 1) {
-                  this.page = this.page - 1;
-                }
+                this.clear();
                 this.alim("삭제 되었습니다.", this.successColor);
               } else {
                 this.alim(this.creatorVideoDeleteResult.nextmApiResult.errorMessage, this.errorColor);
@@ -392,6 +405,25 @@
               bus.$emit("end:spinner");
             }
           }
+          if (data.type === "photo") {
+            try {
+              bus.$emit("start:spinner");
+              await this.$store.dispatch("common/FILE_DELETE", this.delId);
+
+              const res = this.fileDeleteResult.nextmApiResult;
+              if (parseInt(res.errorCode) !== 200) {
+                this.alim(res.errorMessage, this.errorColor);
+                bus.$emit("end:spinner");
+                return false;
+              }
+              this.creatorVideoDetail(this.creatorVideoSid);
+              this.alim("삭제 되었습니다.", this.successColor);
+            } catch (error) {
+              this.alim(error, this.errorColor);
+            } finally {
+              bus.$emit("end:spinner");
+            }
+          }          
         }
         this.resetDeleteData();
       },

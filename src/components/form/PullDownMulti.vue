@@ -28,6 +28,7 @@ export default {
       itemsCopy: [],
       search: "",
       itemList: [],
+      defaultFlag:false
     };
   },
   computed: {
@@ -35,19 +36,10 @@ export default {
   },
   watch: {
     codeReload() {
-      console.log(222);
       this.reload();
     },
     code() {
-      console.log(111);
       this.reload();
-    },
-    data(val){
-      if (val == null) {
-        this.select = "";
-      } else {
-        this.select = val;
-      }
     },
     //초기화
     clear(o, n) {
@@ -55,6 +47,15 @@ export default {
         this.select = [];
       }
     },
+    //리스트 선택시 상세에 선택값 표기
+    data(val) {
+      this.defaultFlag=true;
+      if (val == null) {
+        this.select = "";
+      } else {
+        this.select = val;
+      }
+    },    
     //셀렉트 선택시 시스템 코드 데이터 emit
     select(val) {
       const selectCodeList = [];
@@ -70,7 +71,11 @@ export default {
           });
         });
       }
-//      this.$emit("selected", selectCodeList);
+      if(this.defaultFlag===true){
+        this.defaultFlag=false;
+      }else{
+        this.$emit("selected", selectCodeList);
+      }  
     },
   },
   mounted() {
