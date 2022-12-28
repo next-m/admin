@@ -21,7 +21,7 @@ let del = {
     },
     copyConfirm() {
       this.type = "list";
-      this.dialog = true;
+      this.dialog = true;  
       this.dialogTitle = this.confirmTitle;
       this.dialogText = this.confirmText;
       this.dialogKind = "YY";

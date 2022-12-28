@@ -48,9 +48,9 @@
                 <td><img :src='`https://api.next-m.kr/api/h1/file/fileView/${item?.video_horizontal_image?.fileSid}?size=100`' /></td>
                 <td class="left">{{ item.creatorVideoTitle }}</td>
                 <td>{{ item.homepageUserSid }}</td>
-                <td>{{ item.homepage_user_creator.homepageUserCreatorChannelName }}</td>
-                <td>{{ item.homepage_user_creator.creatorJjimCount }}</td>
-                <td>{{ item.homepage_user_creator.creatorVideoCount }}</td>
+                <td>{{ item.homepageUserCreatorChannelName }}</td>
+                <td>{{ item.jjimCount?item.jjimCount:0 }}</td>
+                <td>{{ item.commentCount?item.commentCount:0 }}</td>
                 <td>{{ item.creatorVideoStatusName }}</td>                                
                 <td>{{ item.creatorVideoDate | formatDate }}</td>
               </tr>
