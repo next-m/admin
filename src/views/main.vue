@@ -84,10 +84,10 @@ export default {
       time: "",
       dataName: ["회원가입수", "휴먼/탈퇴 (누적)", "DAY", "휴면계정", "누적", "탈퇴 계정"],
       dataName2: ["전체", "신청", "승인", "종료"],
-      dataName3: ["전체", "승인대기", "승인", "승인불가"],
+      dataName3: ["전체", "승인대기", "승인", "승인불가","영상재생불가","관리자 차단"],
       userInfoArr: ["", "", 0, 0, 0, 0],
       creatorArr: [0, 0, 0, 0, "", ""],
-      contentsArr: [0, 0, 0, 0, "", ""],
+      contentsArr: [0, 0, 0, 0, 0, 0],
       totalTodal: 0,
       totalMonth: 0,
       totalDay: 0,
@@ -178,7 +178,7 @@ export default {
          this.creatorArr = [creator.creatorTotal, creator.creatorAfter, creator.creatorStart, creator.creatorEnd, "", ""];         
 
          const content      = res.contentInfo;         
-         this.contentsArr = [content.total, content.before, content.approval, content.sorry, "", ""];         
+         this.contentsArr = [content.total, content.before, content.approval, content.sorry, content.playSorry, content.adminSorry];         
 
 
         // this.videoTodal = res.buyInfo.video.total;
